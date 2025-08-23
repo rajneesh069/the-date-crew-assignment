@@ -32,6 +32,10 @@ export const authConfig = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  pages: {
+    signIn: "/",
+    signOut: "/logout",
+  },
   adapter: PrismaAdapter(db),
   callbacks: {
     session: ({ session, user }) => {
