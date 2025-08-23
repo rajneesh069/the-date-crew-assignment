@@ -2,9 +2,8 @@
 
 ## The Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- [Next.js](https://nextjs.org) - for good SEO and SSR
+- [NextAuth.js](https://next-auth.js.org) - for scalable OAuth
+- [Prisma](https://prisma.io) - for DB interactions
+- [Tailwind CSS](https://tailwindcss.com) - for styling
+- [tRPC](https://trpc.io) - for end-to-end typesafe APIs
