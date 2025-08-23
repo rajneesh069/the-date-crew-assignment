@@ -9,7 +9,7 @@ export default async function AdminPage() {
   }
 
   if (session.user) {
-    void api.user.getAllUsers();
+    void api.user.getAllUsers.prefetch({ page: 1 });
   }
 
   return (
