@@ -64,7 +64,7 @@ export default async function SignIn() {
 
         {/* Footer */}
         <p className="text-center text-sm text-amber-600">
-          © {year} The Date Crew. Connecting hearts, creating futures.
+          © {year} The Date Crew. Connecting hearts, Creating futures.
         </p>
       </div>
     </div>
