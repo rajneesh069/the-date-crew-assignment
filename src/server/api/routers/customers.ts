@@ -33,8 +33,8 @@ export const serverCustomerProfileSchema = z.object({
   dateOfBirth: z
     .string()
     .regex(
-      /^(0[1-9]|[12]\d|3[01])-(0[1-9]|1[0-2])-\d{4}$/,
-      "Invalid date format",
+      /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
+      "Invalid date format, expected YYYY-MM-DD",
     ),
   country: z.string().min(1),
   city: z.string().min(1),
@@ -84,10 +84,6 @@ export const customerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // parse DD-MM-YYYY -> Date
-      const [d, m, y] = input.dateOfBirth.split("-");
-      const dateOfBirth = new Date(`${y}-${m}-${d}`);
-
       // basic uniqueness check (fallback to Prisma P2002 still required in bigger apps)
       const existing = await ctx.db.customer.findFirst({
         where: { OR: [{ email: input.email }, { phone: input.phone }] },
@@ -104,7 +100,7 @@ export const customerRouter = createTRPCRouter({
         data: {
           ...input,
           userId,
-          dateOfBirth,
+          dateOfBirth: new Date(input.dateOfBirth),
         },
       });
 
@@ -232,35 +228,24 @@ export const customerRouter = createTRPCRouter({
         });
 
       // uniqueness checks for email/phone if provided
-      if (data.email) {
-        const other = await ctx.db.customer.findFirst({
-          where: { email: data.email, NOT: { id: customerId } },
+      const other = await ctx.db.customer.findFirst({
+        where: {
+          OR: [{ email: data.email }, { phone: data.phone }],
+          NOT: { id: customerId },
+        },
+      });
+      if (other)
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Email/Phone used by another customer",
         });
-        if (other)
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Email used by another customer",
-          });
-      }
-      if (data.phone) {
-        const other = await ctx.db.customer.findFirst({
-          where: { phone: data.phone, NOT: { id: customerId } },
-        });
-        if (other)
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Phone used by another customer",
-          });
-      }
-
-      const updateData = { ...data };
-
-      const [d, m, y] = data.dateOfBirth.split("-");
-      const newDate = new Date(`${y}-${m}-${d}`);
 
       const updated = await ctx.db.customer.update({
         where: { id: customerId },
-        data: { ...updateData, dateOfBirth: newDate },
+        data: {
+          ...data,
+          dateOfBirth: new Date(data.dateOfBirth), // <-- Convert
+        },
       });
       return updated;
     }),

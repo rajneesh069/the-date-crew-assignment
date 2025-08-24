@@ -105,7 +105,7 @@ export function AddCustomer() {
       email: "",
       phone: "",
       dateOfBirth: "",
-      gender: "Male",
+      gender: undefined,
       country: "",
       city: "",
       height: "",
@@ -114,20 +114,20 @@ export function AddCustomer() {
       income: "",
       company: "",
       designation: "",
-      maritalStatus: "NeverMarried",
+      maritalStatus: undefined,
       languages: "",
       siblings: "0",
       caste: "",
-      religion: "No Religion / Atheist",
-      wantKids: "Maybe",
-      openToRelocate: "Maybe",
-      openToPets: "Maybe",
+      religion: undefined,
+      wantKids: undefined,
+      openToRelocate: undefined,
+      openToPets: undefined,
       bio: "",
       familySize: "3",
-      employmentType: "Private",
+      employmentType: undefined,
       hobbies: "",
-      importanceOfCasteOfThePartner: "MEDIUM",
-      importanceOfReligionOfThePartner: "MEDIUM",
+      importanceOfCasteOfThePartner: undefined,
+      importanceOfReligionOfThePartner: undefined,
     },
   });
 
@@ -137,10 +137,10 @@ export function AddCustomer() {
       await utils.customer.getAllCustomers.invalidate();
       await utils.customer.search.invalidate();
       toast.success("Customer Added Successfully");
-      router.push("/"); // back to dashboard
+      router.push("/client"); // back to dashboard
     },
     onError: (err) => {
-      toast.error(err.message ?? "Failed to add customer");
+      toast.error(err.shape?.code ?? "Failed to add customer");
       setIsSubmitting(false);
     },
   });
@@ -149,17 +149,8 @@ export function AddCustomer() {
     setIsSubmitting(true);
 
     try {
-      // Convert date input (yyyy-mm-dd if using <Input type="date">) to DD-MM-YYYY
-      let dob = data.dateOfBirth;
-      // If browser date input produced yyyy-mm-dd, convert:
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
-        const [yyyy, mm, dd] = dob.split("-");
-        dob = `${dd}-${mm}-${yyyy}`;
-      }
-
       const payload = {
         ...data,
-        dateOfBirth: dob,
         height: Number(data.height),
         income: parseInt(data.income.replace(/,/g, "")) || 0,
         siblings: Number(data.siblings),
@@ -253,7 +244,6 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* dateOfBirth (you originally used type="date") */}
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -526,7 +516,7 @@ export function AddCustomer() {
                       <FormLabel>Annual Income</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter annual income, e.g., 600000"
+                          placeholder="Enter annual income, e.g., 6,00,000"
                           {...field}
                         />
                       </FormControl>
@@ -646,9 +636,15 @@ export function AddCustomer() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="HIGH">HIGH</SelectItem>
-                          <SelectItem value="MEDIUM">MEDIUM</SelectItem>
-                          <SelectItem value="LOW">LOW</SelectItem>
+                          <SelectItem value="HIGH">
+                            Me/my family is conservative about it.
+                          </SelectItem>
+                          <SelectItem value="MEDIUM">
+                            Preferrably same.
+                          </SelectItem>
+                          <SelectItem value="LOW">
+                            Open to other caste.
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -671,9 +667,15 @@ export function AddCustomer() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="HIGH">HIGH</SelectItem>
-                          <SelectItem value="MEDIUM">MEDIUM</SelectItem>
-                          <SelectItem value="LOW">LOW</SelectItem>
+                          <SelectItem value="HIGH">
+                            Me/my family is conservative about it.
+                          </SelectItem>
+                          <SelectItem value="MEDIUM">
+                            Preferrably same.
+                          </SelectItem>
+                          <SelectItem value="LOW">
+                            Open to other religion.
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

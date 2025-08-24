@@ -300,7 +300,7 @@ export function Dashboard() {
                 </SelectContent>
               </Select>
 
-              <Link href="/addCustomer">
+              <Link href="/client/add-customer">
                 <Button className="flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
                   <span>Add Customer</span>
@@ -311,93 +311,97 @@ export function Dashboard() {
             {/* Customer List */}
             <div className="mb-6 space-y-4">
               {filteredCustomers.map((customer) => (
-                <div
+                <Link
                   key={customer.id}
-                  className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors"
+                  href={`/client/customer/${encodeURIComponent(customer.id)}`}
                 >
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage
-                        src={customer.avatar ?? "/placeholder.svg"}
-                      />
-                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                        {customer.firstName?.[0]}
-                        {customer.lastName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                  <div className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage
+                          src={customer.avatar ?? "/placeholder.svg"}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                          {customer.firstName?.[0]}
+                          {customer.lastName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <div>
-                      <h3 className="text-foreground font-medium">
-                        {customer.firstName} {customer.lastName}
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        {customer.age} years • {customer.city} •{" "}
-                        {customer.maritalStatus}
-                      </p>
-                      <p className="text-muted-foreground mt-1 text-xs">
-                        Joined:{" "}
-                        {new Date(customer.joinDate).toLocaleDateString(
-                          "en-IN",
-                          { timeZone: "Asia/Kolkata" },
-                        )}
-                      </p>
+                      <div>
+                        <h3 className="text-foreground font-medium">
+                          {customer.firstName} {customer.lastName}
+                        </h3>
+                        <p className="text-muted-foreground text-sm">
+                          {customer.age} years • {customer.city} •{" "}
+                          {customer.maritalStatus}
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          Joined:{" "}
+                          {new Date(customer.joinDate).toLocaleDateString(
+                            "en-IN",
+                            { timeZone: "Asia/Kolkata" },
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <Badge className={statusColors[customer.status]}>
+                        {customer.status.charAt(0).toUpperCase() +
+                          customer.status.slice(1)}
+                      </Badge>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          router.push(
+                            `/client/edit-customer/${encodeURIComponent(customer.id)}`,
+                          )
+                        }
+                        className="bg-transparent"
+                      >
+                        <Edit3 className="mr-2 h-4 w-4" />
+                        Edit
+                      </Button>
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="bg-transparent"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Delete customer?</DialogTitle>
+                          </DialogHeader>
+                          <p className="mb-4">
+                            This action is permanent. Are you sure you want to
+                            delete {customer.firstName} {customer.lastName}?
+                          </p>
+                          <DialogFooter>
+                            <Button variant="outline" size="sm">
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={async () => {
+                                await confirmDelete(customer.id);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-3">
-                    <Badge className={statusColors[customer.status]}>
-                      {customer.status.charAt(0).toUpperCase() +
-                        customer.status.slice(1)}
-                    </Badge>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/edit-customer?customerId=${customer.id}`)
-                      }
-                      className="bg-transparent"
-                    >
-                      <Edit3 className="mr-2 h-4 w-4" />
-                      Edit
-                    </Button>
-
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="bg-transparent"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Delete customer?</DialogTitle>
-                        </DialogHeader>
-                        <p className="mb-4">
-                          This action is permanent. Are you sure you want to
-                          delete {customer.firstName} {customer.lastName}?
-                        </p>
-                        <DialogFooter>
-                          <Button variant="outline" size="sm">
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={async () => {
-                              await confirmDelete(customer.id);
-                            }}
-                          >
-                            Delete
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
 
