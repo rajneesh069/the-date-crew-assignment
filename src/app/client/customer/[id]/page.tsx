@@ -15,11 +15,11 @@ import {
   MapPin,
   Briefcase,
   GraduationCap,
-  DollarSign,
   Calendar,
   Globe,
   Baby,
   PawPrint,
+  IndianRupeeIcon,
 } from "lucide-react";
 import { getProfileById } from "@/lib/dummy-profiles";
 import Link from "next/link";
@@ -121,9 +121,9 @@ export default function CustomerProfile() {
                   <h2 className="text-2xl font-bold text-gray-900">
                     {customer.firstName} {customer.lastName}
                   </h2>
-                  <Badge className={statusColors[customer.status]}>
-                    {customer.status.charAt(0).toUpperCase() +
-                      customer.status.slice(1)}
+                  <Badge className={statusColors[customer.accountStatus]}>
+                    {customer.accountStatus.charAt(0).toUpperCase() +
+                      customer.accountStatus.slice(1)}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 md:grid-cols-4">
@@ -256,7 +256,7 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="flex items-center space-x-1 text-sm font-medium text-gray-600">
-                    <DollarSign className="h-4 w-4" />
+                    <IndianRupeeIcon className="h-4 w-4" />
                     <span>Annual Income</span>
                   </label>
                   <p className="text-sm font-medium">{customer.income}</p>

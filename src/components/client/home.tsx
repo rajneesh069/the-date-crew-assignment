@@ -66,7 +66,7 @@ export function Dashboard() {
     age: new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear(),
     city: profile.city,
     maritalStatus: profile.maritalStatus,
-    status: profile.status,
+    status: profile.accountStatus,
     avatar: profile.avatar,
     joinDate: profile.joinDate,
     lastActivity: profile.lastActivity,
