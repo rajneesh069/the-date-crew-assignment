@@ -31,6 +31,7 @@ import {
   ChevronRight,
   Trash2,
   Edit3,
+  User,
 } from "lucide-react";
 import {
   Dialog,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/dialog";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const statusColors: Record<string, string> = {
   unmatched: "bg-purple-100 text-purple-800 border-purple-200",
@@ -51,6 +53,7 @@ const statusColors: Record<string, string> = {
 };
 
 export function Dashboard() {
+  const session = useSession();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -190,15 +193,28 @@ export function Dashboard() {
               <p className="text-muted-foreground text-sm">Dashboard</p>
             </div>
           </div>
-          <Link href={"/api/auth/signout"}>
-            <Button
-              variant="outline"
-              className="flex items-center space-x-2 bg-transparent"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {session.data?.user.role === "ADMIN" && (
+              <Link href={"/admin"}>
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2 bg-transparent"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Admin</span>
+                </Button>
+              </Link>
+            )}
+            <Link href={"/api/auth/signout"}>
+              <Button
+                variant="outline"
+                className="flex items-center space-x-2 bg-transparent"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -324,11 +340,12 @@ export function Dashboard() {
             <div className="mb-6 space-y-2">
               {filteredCustomers.map((customer) => (
                 <div
-                  className="border-border hover:bg-muted/50 card-hover flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors"
+                  className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors"
                   key={customer.id}
                 >
                   <Link
                     href={`/client/customer/${encodeURIComponent(customer.id)}`}
+                    className="flex-1"
                   >
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
