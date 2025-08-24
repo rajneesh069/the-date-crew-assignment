@@ -182,7 +182,9 @@ export function CustomerProfile() {
                       Marital Status
                     </label>
                     <p className="text-sm font-medium">
-                      {customer?.maritalStatus}
+                      {customer?.maritalStatus === "NeverMarried"
+                        ? "Never Married"
+                        : "Divorced"}
                     </p>
                   </div>
                   <div>

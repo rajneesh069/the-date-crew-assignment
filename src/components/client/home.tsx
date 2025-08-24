@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -51,10 +51,20 @@ const statusColors: Record<string, string> = {
 };
 
 export function Dashboard() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   const utils = api.useUtils();
 
@@ -65,8 +75,8 @@ export function Dashboard() {
   } = api.customer.getAllCustomers.useQuery({ page: currentPage });
 
   const { data: searchCustomersData } = api.customer.search.useQuery(
-    { search: searchTerm, currentPage },
-    { enabled: !!searchTerm },
+    { search: debouncedSearchTerm, currentPage },
+    { enabled: !!debouncedSearchTerm },
   );
 
   const customers = searchTerm
@@ -81,7 +91,10 @@ export function Dashboard() {
       age:
         new Date().getFullYear() - new Date(customer.dateOfBirth).getFullYear(),
       city: customer.city,
-      maritalStatus: customer.maritalStatus,
+      maritalStatus:
+        customer.maritalStatus === "NeverMarried"
+          ? "Never Married"
+          : "Divorced",
       status: customer.accountStatus,
       avatar: customer.avatar,
       joinDate: customer.joinDate,
@@ -133,7 +146,6 @@ export function Dashboard() {
   });
 
   const confirmDelete = async (customerId: string) => {
-    if (!confirm("Delete this customer? This action cannot be undone.")) return;
     await deleteMutation.mutateAsync({ customerId });
   };
 
@@ -309,13 +321,15 @@ export function Dashboard() {
             </div>
 
             {/* Customer List */}
-            <div className="mb-6 space-y-4">
+            <div className="mb-6 space-y-2">
               {filteredCustomers.map((customer) => (
-                <Link
+                <div
+                  className="border-border hover:bg-muted/50 card-hover flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors"
                   key={customer.id}
-                  href={`/client/customer/${encodeURIComponent(customer.id)}`}
                 >
-                  <div className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors">
+                  <Link
+                    href={`/client/customer/${encodeURIComponent(customer.id)}`}
+                  >
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage
@@ -344,64 +358,62 @@ export function Dashboard() {
                         </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-3">
-                      <Badge className={statusColors[customer.status]}>
-                        {customer.status.charAt(0).toUpperCase() +
-                          customer.status.slice(1)}
-                      </Badge>
-
+                  </Link>
+                  <div className="flex items-center space-x-3">
+                    <Badge className={statusColors[customer.status]}>
+                      {customer.status.charAt(0).toUpperCase() +
+                        customer.status.slice(1)}
+                    </Badge>
+                    <Link
+                      href={`/client/edit-customer/${encodeURIComponent(customer.id)}`}
+                    >
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          router.push(
-                            `/client/edit-customer/${encodeURIComponent(customer.id)}`,
-                          )
-                        }
                         className="bg-transparent"
                       >
                         <Edit3 className="mr-2 h-4 w-4" />
                         Edit
                       </Button>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="bg-transparent"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Delete customer?</DialogTitle>
-                          </DialogHeader>
-                          <p className="mb-4">
-                            This action is permanent. Are you sure you want to
-                            delete {customer.firstName} {customer.lastName}?
-                          </p>
-                          <DialogFooter>
+                    </Link>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="bg-transparent"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Delete customer?</DialogTitle>
+                        </DialogHeader>
+                        <p className="mb-4">
+                          This action is permanent. Are you sure you want to
+                          delete {customer.firstName} {customer.lastName}?
+                        </p>
+                        <DialogFooter>
+                          <DialogClose asChild>
                             <Button variant="outline" size="sm">
                               Cancel
                             </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={async () => {
-                                await confirmDelete(customer.id);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
+                          </DialogClose>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={async () => {
+                              await confirmDelete(customer.id);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
 
@@ -466,23 +478,6 @@ export function Dashboard() {
                       Last
                     </Button>
                   </div>
-                </div>
-
-                <div className="text-muted-foreground flex items-center justify-center space-x-2 text-sm">
-                  <span>Go to page:</span>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={totalPages}
-                    value={currentPage}
-                    onChange={(e) => {
-                      const page = Number(e.target.value);
-                      if (page >= 1 && page <= totalPages)
-                        handlePageChange(page);
-                    }}
-                    className="h-8 w-16 text-center"
-                  />
-                  <span>of {totalPages}</span>
                 </div>
               </div>
             )}
