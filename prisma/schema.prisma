@@ -53,11 +53,82 @@ model User {
     adminActivated Boolean @default(false)
     role           Role    @default(MATCHMAKER)
 
-    accounts Account[]
-    sessions Session[]
+    accounts  Account[]
+    sessions  Session[]
+    customers Customer[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt()
+}
+
+enum Gender {
+    Male
+    Female
+}
+
+enum EmploymentType {
+    Government
+    Private
+}
+
+enum MaritalStatus {
+    NeverMarried
+    Divorced
+}
+
+enum PreferenceAnswer {
+    Yes
+    No
+    Maybe
+}
+
+enum AccountStatus {
+    matched
+    unmatched
+    paused
+}
+
+enum Importance {
+    HIGH
+    MEDIUM
+    LOW
+}
+
+model Customer {
+    id                               String           @id @default(cuid())
+    userId                           String?
+    firstName                        String
+    lastName                         String
+    gender                           Gender
+    dateOfBirth                      DateTime
+    country                          String
+    city                             String
+    height                           Int
+    email                            String           @unique
+    phone                            String           @unique
+    college                          String
+    degree                           String
+    income                           Int
+    employmentType                   EmploymentType
+    company                          String?
+    designation                      String
+    maritalStatus                    MaritalStatus
+    languages                        String[]
+    hobbies                          String[]
+    siblings                         Int
+    caste                            String
+    religion                         String
+    wantKids                         PreferenceAnswer
+    openToRelocate                   PreferenceAnswer
+    openToPets                       PreferenceAnswer
+    accountStatus                    AccountStatus    @default(unmatched)
+    avatar                           String?
+    joinDate                         DateTime         @default(now())
+    bio                              String
+    familySize                       Int
+    importanceOfCasteOfThePartner    Importance
+    importanceOfReligionOfThePartner Importance
+    user                             User?            @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {

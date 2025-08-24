@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,70 +30,83 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Trash2,
+  Edit3,
 } from "lucide-react";
-import { getCustomerProfiles } from "@/lib/dummy-profiles";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
-interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  age: number;
-  city: string;
-  maritalStatus: string;
-  status: "new" | "active" | "matched" | "paused";
-  avatar?: string;
-  joinDate: string;
-  lastActivity: string;
-}
-
-const statusColors = {
-  new: "bg-blue-100 text-blue-800 border-blue-200",
-  active: "bg-green-100 text-green-800 border-green-200",
-  matched: "bg-purple-100 text-purple-800 border-purple-200",
+const statusColors: Record<string, string> = {
+  unmatched: "bg-purple-100 text-purple-800 border-purple-200",
+  matched: "bg-green-100 text-green-800 border-green-200",
   paused: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
 export function Dashboard() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
 
-  const allProfiles = getCustomerProfiles();
-  const customers: Customer[] = allProfiles.map((profile) => ({
-    id: profile.id,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    age: new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear(),
-    city: profile.city,
-    maritalStatus: profile.maritalStatus,
-    status: profile.accountStatus,
-    avatar: profile.avatar,
-    joinDate: profile.joinDate,
-    lastActivity: profile.lastActivity,
-  }));
+  const utils = api.useUtils();
 
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      `${customer.firstName} ${customer.lastName}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      customer.city.toLowerCase().includes(searchTerm.toLowerCase());
+  const {
+    data: customersData,
+    isLoading,
+    error,
+  } = api.customer.getAllCustomers.useQuery({ page: currentPage });
 
-    const matchesStatus =
-      statusFilter === "all" || customer.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCustomers = filteredCustomers.slice(
-    startIndex,
-    startIndex + itemsPerPage,
+  const { data: searchCustomersData } = api.customer.search.useQuery(
+    { search: searchTerm, currentPage },
+    { enabled: !!searchTerm },
   );
 
+  const customers = searchTerm
+    ? searchCustomersData?.result
+    : customersData?.customers;
+
+  const processedCustomers =
+    (customers ?? []).map((customer) => ({
+      id: customer.id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      age:
+        new Date().getFullYear() - new Date(customer.dateOfBirth).getFullYear(),
+      city: customer.city,
+      maritalStatus: customer.maritalStatus,
+      status: customer.accountStatus,
+      avatar: customer.avatar,
+      joinDate: customer.joinDate,
+      raw: customer,
+    })) ?? [];
+
+  const filteredCustomers =
+    statusFilter === "all"
+      ? processedCustomers
+      : processedCustomers.filter(
+          (customer) => customer.status === statusFilter,
+        );
+
+  const totalPages = searchTerm
+    ? (searchCustomersData?.totalPages ?? 1)
+    : (customersData?.totalPages ?? 1);
+  const totalCount = searchTerm
+    ? (searchCustomersData?.totalCount ?? 0)
+    : (customersData?.totalCount ?? 0);
+  const pageSize = searchTerm
+    ? (searchCustomersData?.pageSize ?? 10)
+    : (customersData?.pageSize ?? 10);
+
   const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
 
@@ -105,6 +119,47 @@ export function Dashboard() {
     setStatusFilter(value);
     setCurrentPage(1);
   };
+
+  // delete mutation
+  const deleteMutation = api.customer.deleteCustomer.useMutation({
+    onSuccess: async () => {
+      await utils.customer.getAllCustomers.invalidate();
+      await utils.customer.search.invalidate();
+      toast.success("Deleted the user successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete user");
+    },
+  });
+
+  const confirmDelete = async (customerId: string) => {
+    if (!confirm("Delete this customer? This action cannot be undone.")) return;
+    await deleteMutation.mutateAsync({ customerId });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+          <p className="text-muted-foreground">Loading customers...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="mb-4 text-red-600">
+            Error loading customers: {error.message}
+          </p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -144,51 +199,65 @@ export function Dashboard() {
                 <div>
                   <p className="text-muted-foreground text-sm">Total Clients</p>
                   <p className="text-primary text-2xl font-bold">
-                    {customers.length}
+                    {totalCount}
                   </p>
                 </div>
                 <Users className="text-primary/60 h-8 w-8" />
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Active</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {customers.filter((c) => c.status === "active").length}
-                  </p>
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                  <div className="h-3 w-3 rounded-full bg-green-600"></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">Matched</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {customers.filter((c) => c.status === "matched").length}
+                  <p className="text-2xl font-bold text-green-600">
+                    {
+                      filteredCustomers.filter((c) => c.status === "matched")
+                        .length
+                    }
                   </p>
                 </div>
-                <Heart className="h-8 w-8 text-purple-600/60" />
+                <Heart className="h-8 w-8 text-green-600/60" />
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm">New</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {customers.filter((c) => c.status === "new").length}
+                  <p className="text-muted-foreground text-sm">Unmatched</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {
+                      filteredCustomers.filter((c) => c.status === "unmatched")
+                        .length
+                    }
                   </p>
                 </div>
-                <Plus className="h-8 w-8 text-blue-600/60" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
+                  <div className="h-3 w-3 rounded-full bg-purple-600"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-muted-foreground text-sm">Paused</p>
+                  <p className="text-2xl font-bold text-gray-600">
+                    {
+                      filteredCustomers.filter((c) => c.status === "paused")
+                        .length
+                    }
+                  </p>
+                </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
+                  <div className="h-3 w-3 rounded-full bg-gray-600"></div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -200,7 +269,7 @@ export function Dashboard() {
             <CardTitle>Customer Management</CardTitle>
             <CardDescription>
               Manage and view all your assigned customers • Showing{" "}
-              {filteredCustomers.length} of {customers.length} customers
+              {filteredCustomers.length} of {totalCount} customers
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -208,12 +277,13 @@ export function Dashboard() {
               <div className="relative flex-1">
                 <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
-                  placeholder="Search customers by name or city..."
+                  placeholder="Search customers by name, email, phone, or city..."
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
+
               <Select
                 value={statusFilter}
                 onValueChange={handleStatusFilterChange}
@@ -224,13 +294,13 @@ export function Dashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="unmatched">Unmatched</SelectItem>
                   <SelectItem value="matched">Matched</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
                 </SelectContent>
               </Select>
-              <Link href="/client/add-customer">
+
+              <Link href="/addCustomer">
                 <Button className="flex items-center space-x-2">
                   <Plus className="h-4 w-4" />
                   <span>Add Customer</span>
@@ -239,87 +309,110 @@ export function Dashboard() {
             </div>
 
             {/* Customer List */}
-            <div className="mb-6 flex flex-col gap-2">
-              {paginatedCustomers.map((customer) => (
-                <Link
+            <div className="mb-6 space-y-4">
+              {filteredCustomers.map((customer) => (
+                <div
                   key={customer.id}
-                  href={`/client/customer/${customer.id}`}
+                  className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors"
                 >
-                  <div className="border-border hover:bg-muted/50 card-hover flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage
-                          src={customer.avatar ?? "/placeholder.svg"}
-                        />
-                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                          {customer.firstName[0]}
-                          {customer.lastName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="text-foreground font-medium">
-                          {customer.firstName} {customer.lastName}
-                        </h3>
-                        <p className="text-muted-foreground text-sm">
-                          {customer.age} years • {customer.city} •{" "}
-                          {customer.maritalStatus}
-                        </p>
-                        <p className="text-muted-foreground mt-1 text-xs">
-                          Joined:{" "}
-                          {new Date(customer.joinDate).toLocaleDateString()} •
-                          Last active:{" "}
-                          {new Date(customer.lastActivity).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge className={statusColors[customer.status]}>
-                        {customer.status.charAt(0).toUpperCase() +
-                          customer.status.slice(1)}
-                      </Badge>
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage
+                        src={customer.avatar ?? "/placeholder.svg"}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {customer.firstName?.[0]}
+                        {customer.lastName?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div>
+                      <h3 className="text-foreground font-medium">
+                        {customer.firstName} {customer.lastName}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {customer.age} years • {customer.city} •{" "}
+                        {customer.maritalStatus}
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Joined:{" "}
+                        {new Date(customer.joinDate).toLocaleDateString(
+                          "en-IN",
+                          { timeZone: "Asia/Kolkata" },
+                        )}
+                      </p>
                     </div>
                   </div>
-                </Link>
+
+                  <div className="flex items-center space-x-3">
+                    <Badge className={statusColors[customer.status]}>
+                      {customer.status.charAt(0).toUpperCase() +
+                        customer.status.slice(1)}
+                    </Badge>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        router.push(`/edit-customer?customerId=${customer.id}`)
+                      }
+                      className="bg-transparent"
+                    >
+                      <Edit3 className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="bg-transparent"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Delete customer?</DialogTitle>
+                        </DialogHeader>
+                        <p className="mb-4">
+                          This action is permanent. Are you sure you want to
+                          delete {customer.firstName} {customer.lastName}?
+                        </p>
+                        <DialogFooter>
+                          <Button variant="outline" size="sm">
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={async () => {
+                              await confirmDelete(customer.id);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
               ))}
             </div>
 
-            {totalPages >= 1 && (
+            {/* Pagination */}
+            {(customersData?.totalPages ??
+              searchCustomersData?.totalPages ??
+              1) >= 1 && (
               <div className="border-border border-t pt-4">
                 <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <p className="text-muted-foreground text-sm">
-                      Showing {startIndex + 1} to{" "}
-                      {Math.min(
-                        startIndex + itemsPerPage,
-                        filteredCustomers.length,
-                      )}{" "}
-                      of {filteredCustomers.length} customers
+                      Showing {(currentPage - 1) * (pageSize ?? 10) + 1} to{" "}
+                      {Math.min(currentPage * (pageSize ?? 10), totalCount)} of{" "}
+                      {totalCount} customers
                     </p>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-muted-foreground text-sm">
-                        Show:
-                      </span>
-                      <Select
-                        value={itemsPerPage.toString()}
-                        onValueChange={(value) => {
-                          setItemsPerPage(Number(value));
-                          setCurrentPage(1);
-                        }}
-                      >
-                        <SelectTrigger className="h-8 w-20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="6">6</SelectItem>
-                          <SelectItem value="12">12</SelectItem>
-                          <SelectItem value="24">24</SelectItem>
-                          <SelectItem value="50">50</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <span className="text-muted-foreground text-sm">
-                        per page
-                      </span>
-                    </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -327,7 +420,7 @@ export function Dashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(1)}
-                      disabled={currentPage === 1}
+                      disabled={!customersData?.hasPreviousPage}
                       className="bg-transparent"
                     >
                       First
@@ -336,7 +429,7 @@ export function Dashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
+                      disabled={!customersData?.hasPreviousPage}
                       className="bg-transparent"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -344,96 +437,16 @@ export function Dashboard() {
                     </Button>
 
                     <div className="flex items-center space-x-1">
-                      {/* Show page numbers with ellipsis for large page counts */}
-                      {(() => {
-                        const pages = [];
-                        const showPages = 5;
-                        let startPage = Math.max(
-                          1,
-                          currentPage - Math.floor(showPages / 2),
-                        );
-                        const endPage = Math.min(
-                          totalPages,
-                          startPage + showPages - 1,
-                        );
-
-                        if (endPage - startPage < showPages - 1) {
-                          startPage = Math.max(1, endPage - showPages + 1);
-                        }
-
-                        if (startPage > 1) {
-                          pages.push(
-                            <Button
-                              key={1}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handlePageChange(1)}
-                              className="h-8 w-8 bg-transparent p-0"
-                            >
-                              1
-                            </Button>,
-                          );
-                          if (startPage > 2) {
-                            pages.push(
-                              <span
-                                key="ellipsis1"
-                                className="text-muted-foreground"
-                              >
-                                ...
-                              </span>,
-                            );
-                          }
-                        }
-
-                        for (let i = startPage; i <= endPage; i++) {
-                          pages.push(
-                            <Button
-                              key={i}
-                              variant={
-                                currentPage === i ? "default" : "outline"
-                              }
-                              size="sm"
-                              onClick={() => handlePageChange(i)}
-                              className={`h-8 w-8 p-0 ${currentPage === i ? "" : "bg-transparent"}`}
-                            >
-                              {i}
-                            </Button>,
-                          );
-                        }
-
-                        if (endPage < totalPages) {
-                          if (endPage < totalPages - 1) {
-                            pages.push(
-                              <span
-                                key="ellipsis2"
-                                className="text-muted-foreground"
-                              >
-                                ...
-                              </span>,
-                            );
-                          }
-                          pages.push(
-                            <Button
-                              key={totalPages}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handlePageChange(totalPages)}
-                              className="h-8 w-8 bg-transparent p-0"
-                            >
-                              {totalPages}
-                            </Button>,
-                          );
-                        }
-
-                        return pages;
-                      })()}
+                      <span className="text-muted-foreground text-sm">
+                        Page {currentPage} of {totalPages}
+                      </span>
                     </div>
 
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
+                      disabled={!customersData?.hasNextPage}
                       className="bg-transparent"
                     >
                       Next
@@ -443,7 +456,7 @@ export function Dashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(totalPages)}
-                      disabled={currentPage === totalPages}
+                      disabled={!customersData?.hasNextPage}
                       className="bg-transparent"
                     >
                       Last
@@ -460,9 +473,8 @@ export function Dashboard() {
                     value={currentPage}
                     onChange={(e) => {
                       const page = Number(e.target.value);
-                      if (page >= 1 && page <= totalPages) {
+                      if (page >= 1 && page <= totalPages)
                         handlePageChange(page);
-                      }
                     }}
                     className="h-8 w-16 text-center"
                   />

@@ -1,8 +1,6 @@
-// components/AddCustomer.tsx (or app/addCustomer/page.tsx depending where you keep it)
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,10 +32,10 @@ import {
   Heart,
   Users,
 } from "lucide-react";
-import { toast } from "sonner";
 import Link from "next/link";
 import { api } from "@/trpc/react";
-
+import { toast } from "sonner";
+import type { ReligionSchemaType } from "@/server/api/routers/customers";
 const customerSchema = z.object({
   firstName: z.string().min(2),
   lastName: z.string().min(2),
@@ -51,7 +49,7 @@ const customerSchema = z.object({
   college: z.string().min(2),
   degree: z.string().min(2),
   income: z.string().min(1),
-  company: z.string(),
+  company: z.string().optional(),
   designation: z.string().min(2),
   maritalStatus: z.enum(["NeverMarried", "Divorced"]),
   languages: z.string().min(1),
@@ -79,117 +77,91 @@ const customerSchema = z.object({
   importanceOfReligionOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
+type EditForm = z.infer<typeof customerSchema>;
 
-const INDIAN_MAJOR_RELIGIONS = [
-  "No Religion / Atheist",
-  "Hindu",
-  "Muslim",
-  "Sikh",
-  "Christian",
-  "Buddhist",
-  "Jain",
-  "Parsi (Zoroastrian)",
-  "Spiritual (but not religious)",
-];
-
-export function AddCustomer() {
+export default function EditCustomerPage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { customerId } = useParams<{ customerId: string }>();
 
-  const form = useForm<CustomerFormData>({
+  const { data: customer, isLoading } = api.customer.getCustomer.useQuery(
+    { customerId },
+    { enabled: !!customerId },
+  );
+
+  const form = useForm<EditForm>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      dateOfBirth: "",
-      gender: "Male",
-      country: "",
-      city: "",
-      height: "",
-      college: "",
-      degree: "",
-      income: "",
-      company: "",
-      designation: "",
-      maritalStatus: "NeverMarried",
-      languages: "",
-      siblings: "0",
-      caste: "",
-      religion: "No Religion / Atheist",
-      wantKids: "Maybe",
-      openToRelocate: "Maybe",
-      openToPets: "Maybe",
-      bio: "",
-      familySize: "3",
-      employmentType: "Private",
-      hobbies: "",
-      importanceOfCasteOfThePartner: "MEDIUM",
-      importanceOfReligionOfThePartner: "MEDIUM",
+      ...customer,
+      dateOfBirth: customer?.dateOfBirth.toLocaleDateString(),
+      height: customer?.height.toString(),
+      income: customer?.income.toString(),
+      languages: customer?.languages.join(", "),
+      siblings: customer?.siblings.toString(),
+      religion: customer?.religion as ReligionSchemaType,
+      familySize: customer?.familySize.toString(),
+      hobbies: customer?.hobbies.join(", "),
+      company: customer?.company ?? "NA",
     },
   });
 
   const utils = api.useUtils();
-  const createMutation = api.customer.createCustomer.useMutation({
+  const updateMutation = api.customer.updateCustomer.useMutation({
     onSuccess: async () => {
       await utils.customer.getAllCustomers.invalidate();
       await utils.customer.search.invalidate();
-      toast.success("Customer Added Successfully");
+      toast.success("Customer updated");
       router.push("/"); // back to dashboard
     },
     onError: (err) => {
-      toast.error(err.message ?? "Failed to add customer");
-      setIsSubmitting(false);
+      toast.error(err.message ?? "Failed to update");
     },
   });
 
-  const onSubmit = async (data: CustomerFormData) => {
-    setIsSubmitting(true);
+  const onSubmit = async (values: EditForm) => {
+    // convert fields to server format
+    const payloadData = {
+      ...values,
+      height: Number(values.height),
+      income: parseInt(values.income.replace(/,/g, "")) || 0,
+      siblings: Number(values.siblings),
+      familySize: Number(values.familySize),
+      languages: values.languages
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      hobbies: values.hobbies
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      company: values.company === "NA" ? null : values.company,
+      accountStatus: "unmatched" as const,
+    };
 
-    try {
-      // Convert date input (yyyy-mm-dd if using <Input type="date">) to DD-MM-YYYY
-      let dob = data.dateOfBirth;
-      // If browser date input produced yyyy-mm-dd, convert:
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
-        const [yyyy, mm, dd] = dob.split("-");
-        dob = `${dd}-${mm}-${yyyy}`;
-      }
-
-      const payload = {
-        ...data,
-        dateOfBirth: dob,
-        height: Number(data.height),
-        income: parseInt(data.income.replace(/,/g, "")) || 0,
-        siblings: Number(data.siblings),
-        familySize: Number(data.familySize),
-        hobbies: data.hobbies
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        languages: data.languages
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        company: data.company === "NA" ? null : data.company,
-        accountStatus: "unmatched" as const,
-      };
-
-      await createMutation.mutateAsync(payload);
-      form.reset();
-    } finally {
-      setIsSubmitting(false);
-    }
+    await updateMutation.mutateAsync({ customerId, data: payloadData });
   };
+
+  if (!customerId) {
+    return (
+      <div className="p-6">
+        <p className="text-red-600">Missing customerId</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <p>Loading customer...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Header */}
       <header className="border-border bg-card sticky top-0 right-0 w-full border-b">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center space-x-3">
-            <Link href={"/client"}>
+            <Link href={"/"}>
               <Button variant="ghost" className="flex items-center space-x-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Dashboard</span>
@@ -202,10 +174,10 @@ export function AddCustomer() {
             </div>
             <div>
               <h1 className="gradient-text text-xl font-semibold">
-                Add New Customer
+                Edit Customer
               </h1>
               <p className="text-muted-foreground text-sm">
-                Complete customer profile
+                Edit customer profile
               </p>
             </div>
           </div>
@@ -223,7 +195,6 @@ export function AddCustomer() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {/* firstName */}
                 <FormField
                   control={form.control}
                   name="firstName"
@@ -238,7 +209,6 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* lastName */}
                 <FormField
                   control={form.control}
                   name="lastName"
@@ -253,22 +223,20 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* dateOfBirth (you originally used type="date") */}
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
+                      <FormLabel>Date of Birth (DD-MM-YYYY)</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input placeholder="DD-MM-YYYY" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* gender */}
                 <FormField
                   control={form.control}
                   name="gender"
@@ -294,7 +262,6 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* height */}
                 <FormField
                   control={form.control}
                   name="height"
@@ -309,7 +276,6 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* hobbies */}
                 <FormField
                   control={form.control}
                   name="hobbies"
@@ -324,7 +290,6 @@ export function AddCustomer() {
                   )}
                 />
 
-                {/* maritalStatus */}
                 <FormField
                   control={form.control}
                   name="maritalStatus"
@@ -359,7 +324,7 @@ export function AddCustomer() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Mail className="h-5 w-5" />
-                  <span>Contact Information</span>
+                  <span>Contact</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -368,13 +333,9 @@ export function AddCustomer() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter email address"
-                          {...field}
-                        />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -386,9 +347,9 @@ export function AddCustomer() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter phone number" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -402,7 +363,7 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter city" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -416,7 +377,7 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter country" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -430,7 +391,7 @@ export function AddCustomer() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Briefcase className="h-5 w-5" />
-                  <span>Professional Information</span>
+                  <span>Professional</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -439,15 +400,14 @@ export function AddCustomer() {
                   name="college"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>College/University</FormLabel>
+                      <FormLabel>College</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter college name" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="degree"
@@ -455,13 +415,12 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Degree</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter degree" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="employmentType"
@@ -474,7 +433,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select Type" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -486,7 +445,6 @@ export function AddCustomer() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="company"
@@ -494,16 +452,12 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter company name, NA if Government"
-                          {...field}
-                        />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="designation"
@@ -511,24 +465,20 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Designation</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter job title" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="income"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Annual Income</FormLabel>
+                      <FormLabel>Income</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter annual income, e.g., 600000"
-                          {...field}
-                        />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -537,10 +487,10 @@ export function AddCustomer() {
               </CardContent>
             </Card>
 
-            {/* Family & Cultural */}
+            {/* Family/culture */}
             <Card>
               <CardHeader>
-                <CardTitle>Family & Cultural Information</CardTitle>
+                <CardTitle>Family & Culture</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
@@ -548,32 +498,27 @@ export function AddCustomer() {
                   name="languages"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Languages Known</FormLabel>
+                      <FormLabel>Languages</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., English, Hindi" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="siblings"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number of Siblings</FormLabel>
+                      <FormLabel>Siblings</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter number of siblings"
-                          {...field}
-                        />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="caste"
@@ -581,13 +526,12 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Caste</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter caste" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="religion"
@@ -600,11 +544,21 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select religion" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {INDIAN_MAJOR_RELIGIONS.map((r) => (
+                          {[
+                            "No Religion / Atheist",
+                            "Hindu",
+                            "Muslim",
+                            "Sikh",
+                            "Christian",
+                            "Buddhist",
+                            "Jain",
+                            "Parsi (Zoroastrian)",
+                            "Spiritual (but not religious)",
+                          ].map((r) => (
                             <SelectItem key={r} value={r}>
                               {r}
                             </SelectItem>
@@ -623,7 +577,7 @@ export function AddCustomer() {
                     <FormItem>
                       <FormLabel>Family Size</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter the family size" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -642,7 +596,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select preference" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -655,6 +609,7 @@ export function AddCustomer() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="importanceOfReligionOfThePartner"
@@ -667,7 +622,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select preference" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -701,7 +656,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select preference" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -727,7 +682,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select preference" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -753,7 +708,7 @@ export function AddCustomer() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select preference" />
+                            <SelectValue placeholder="Select" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -791,26 +746,15 @@ export function AddCustomer() {
               </CardContent>
             </Card>
 
-            {/* Submit */}
             <div className="flex justify-end space-x-4">
-              <Link href={"/client"}>
+              <Link href="/">
                 <Button type="button" variant="outline">
                   Cancel
                 </Button>
               </Link>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center space-x-2"
-              >
-                {isSubmitting ? (
-                  <div className="border-background h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                <span>
-                  {isSubmitting ? "Adding Customer..." : "Add Customer"}
-                </span>
+              <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+                <Save className="h-4 w-4" />
+                <span>Save</span>
               </Button>
             </div>
           </form>

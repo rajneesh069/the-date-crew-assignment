@@ -25,9 +25,8 @@ import { getProfileById } from "@/lib/dummy-profiles";
 import Link from "next/link";
 
 const statusColors = {
-  new: "bg-blue-100 text-blue-800 border-blue-200",
-  active: "bg-green-100 text-green-800 border-green-200",
-  matched: "bg-purple-100 text-purple-800 border-purple-200",
+  matched: "bg-green-100 text-green-800 border-green-200",
+  unmatched: "bg-purple-100 text-purple-800 border-purple-200",
   paused: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
@@ -339,14 +338,7 @@ export default function CustomerProfile() {
                     {new Date(customer.joinDate).toLocaleDateString()}
                   </p>
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Last Activity
-                  </label>
-                  <p className="text-sm font-medium">
-                    {new Date(customer.lastActivity).toLocaleDateString()}
-                  </p>
-                </div>
+
                 <div>
                   <label className="text-sm font-medium text-gray-600">
                     Days Since Join

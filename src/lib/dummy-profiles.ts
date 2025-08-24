@@ -1,51 +1,6 @@
-export interface FullCustomerProfile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  gender: "Male" | "Female";
-  dateOfBirth: string;
-  country: string;
-  address: string;
-  height: number;
-  email: string;
-  phone: string;
-  college: string;
-  degree: string;
-  income: number;
-  employmentType: "Government" | "Private";
-  company: string; // NA if Government
-  designation: string;
-  maritalStatus: "Never Married" | "Divorced";
-  languages: string[];
-  hobbies: string[];
-  siblings: number;
-  caste: string;
-  religion:
-    | "Hindu"
-    | "Muslim"
-    | "Sikh"
-    | "Christian"
-    | "Buddhist"
-    | "Jain"
-    | "Parsi (Zoroastrian)"
-    | "Other"
-    | "No Religion / Atheist"
-    | "Spiritual (but not religious)";
-  wantKids: "Yes" | "No" | "Maybe";
-  openToRelocate: "Yes" | "No" | "Maybe";
-  openToPets: "Yes" | "No" | "Maybe";
-  accountStatus: "new" | "active" | "matched" | "paused";
-  avatar?: string;
-  joinDate: string;
-  lastActivity: string; // it's a date
-  bio: string;
-  familySize: number;
-  importanceOfCasteOfThePartner: "HIGH" | "MEDIUM" | "LOW";
-  importanceOfReligionOfThePartner: "HIGH" | "MEDIUM" | "LOW";
-}
+import type { ServerCustomerProfile } from "@/server/api/routers/customers";
 
-export const dummyProfiles: FullCustomerProfile[] = [
-  // Current customers (existing profiles)
+export const dummyProfiles: ServerCustomerProfile[] = [
   {
     id: "1",
     firstName: "Priya",
@@ -53,7 +8,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1996-03-15",
     country: "India",
-    address: "Mumbai",
+    city: "Mumbai",
     height: 163, // cm (approx 5'4")
     email: "priya.sharma@email.com",
     phone: "+91 98765 43210",
@@ -63,7 +18,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Tata Consultancy Services",
     designation: "Marketing Manager",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Marathi"],
     hobbies: ["Traveling", "Cooking", "Photography"],
     siblings: 1,
@@ -72,10 +27,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Maybe",
     openToPets: "Yes",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-15",
-    lastActivity: "2024-01-20",
     bio: "I'm a passionate marketing professional who loves traveling and exploring new cultures. Looking for a life partner who shares similar values and interests.",
     familySize: 4, // parents + self + 1 sibling
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -88,7 +42,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1992-07-22",
     country: "India",
-    address: "Delhi",
+    city: "Delhi",
     height: 178, // cm (approx 5'10")
     email: "rahul.gupta@email.com",
     phone: "+91 98765 43211",
@@ -98,7 +52,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Google India",
     designation: "Software Engineer",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Punjabi"],
     hobbies: ["Coding", "Fitness", "Cricket"],
     siblings: 0,
@@ -107,10 +61,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Yes",
     openToPets: "No",
-    accountStatus: "new",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-18",
-    lastActivity: "2024-01-18",
     bio: "Tech enthusiast and fitness lover. I enjoy coding, playing cricket, and spending time with family. Seeking a caring and understanding partner.",
     familySize: 3, // parents + self
     importanceOfCasteOfThePartner: "LOW",
@@ -123,7 +76,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1995-11-08",
     country: "India",
-    address: "Bangalore",
+    city: "Bangalore",
     height: 160, // cm (approx 5'3")
     email: "anita.patel@email.com",
     phone: "+91 98765 43212",
@@ -145,7 +98,6 @@ export const dummyProfiles: FullCustomerProfile[] = [
     accountStatus: "matched",
     avatar: undefined,
     joinDate: "2024-01-10",
-    lastActivity: "2024-01-19",
     bio: "Creative designer with a passion for user experience and innovation. I love art, music, and meaningful conversations.",
     familySize: 5, // parents + self + 2 siblings
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -160,7 +112,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1990-05-12",
     country: "India",
-    address: "Mumbai",
+    city: "Mumbai",
     height: 183, // cm (6'0")
     email: "arjun.singh@email.com",
     phone: "+91 98765 43213",
@@ -170,7 +122,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Goldman Sachs",
     designation: "Investment Banker",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Punjabi"],
     hobbies: ["Adventure Sports", "Travel", "Reading"],
     siblings: 1,
@@ -179,10 +131,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Yes",
     openToPets: "Maybe",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-12",
-    lastActivity: "2024-01-21",
     bio: "Finance professional with a passion for adventure sports and travel. Looking for an intelligent and ambitious partner.",
     familySize: 4,
     importanceOfCasteOfThePartner: "HIGH",
@@ -195,7 +146,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1994-09-18",
     country: "India",
-    address: "Hyderabad",
+    city: "Hyderabad",
     height: 165, // cm (5'5")
     email: "kavya.reddy@email.com",
     phone: "+91 98765 43214",
@@ -205,7 +156,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Biocon",
     designation: "Research Scientist",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Telugu", "Hindi", "English"],
     hobbies: ["Reading", "Classical Music", "Gardening"],
     siblings: 0,
@@ -214,10 +165,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Maybe",
     openToPets: "Yes",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-14",
-    lastActivity: "2024-01-20",
     bio: "Research scientist passionate about biotechnology and making a difference in healthcare. Love reading and classical music.",
     familySize: 3,
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -230,7 +180,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1988-12-03",
     country: "India",
-    address: "Bangalore",
+    city: "Bangalore",
     height: 180, // cm (approx 5'11")
     email: "vikram.mehta@email.com",
     phone: "+91 98765 43215",
@@ -240,7 +190,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Tesla",
     designation: "Senior Engineer",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Gujarati"],
     hobbies: ["Hiking", "Photography", "Cooking"],
     siblings: 2,
@@ -249,10 +199,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Yes",
     openToPets: "No",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-16",
-    lastActivity: "2024-01-19",
     bio: "Mechanical engineer working on sustainable transportation. Enjoy hiking, photography, and spending time with family.",
     familySize: 5,
     importanceOfCasteOfThePartner: "HIGH",
@@ -265,7 +214,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1993-07-25",
     country: "India",
-    address: "Pune",
+    city: "Pune",
     height: 157, // cm (approx 5'2")
     email: "sneha.joshi@email.com",
     phone: "+91 98765 43216",
@@ -275,7 +224,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Fabindia",
     designation: "Fashion Designer",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Marathi"],
     hobbies: ["Yoga", "Sustainable Fashion", "Sketching"],
     siblings: 1,
@@ -284,10 +233,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Maybe",
     openToRelocate: "No",
     openToPets: "Yes",
-    accountStatus: "new",
+    accountStatus: "matched",
     avatar: undefined,
     joinDate: "2024-01-17",
-    lastActivity: "2024-01-17",
     bio: "Fashion designer with a love for traditional Indian textiles and sustainable fashion. Enjoy yoga and meditation.",
     familySize: 4,
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -300,7 +248,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1991-04-14",
     country: "India",
-    address: "Delhi",
+    city: "Delhi",
     height: 175, // cm (approx 5'9")
     email: "karan.agarwal@email.com",
     phone: "+91 98765 43217",
@@ -310,7 +258,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "McKinsey & Company",
     designation: "Business Analyst",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English"],
     hobbies: ["Chess", "Reading", "Strategy Games"],
     siblings: 1,
@@ -319,10 +267,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Yes",
     openToPets: "Maybe",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-13",
-    lastActivity: "2024-01-21",
     bio: "Business analyst with a passion for strategy and problem-solving. Love playing chess and reading business books.",
     familySize: 4,
     importanceOfCasteOfThePartner: "LOW",
@@ -335,7 +282,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1989-11-30",
     country: "India",
-    address: "Kochi",
+    city: "Kochi",
     height: 163, // cm (approx 5'4")
     email: "meera.nair@email.com",
     phone: "+91 98765 43218",
@@ -345,7 +292,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Apollo Hospitals",
     designation: "Pediatrician",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Malayalam", "Hindi", "English"],
     hobbies: ["Classical Dance", "Cooking", "Volunteering"],
     siblings: 1,
@@ -354,10 +301,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Maybe",
     openToPets: "Yes",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-11",
-    lastActivity: "2024-01-20",
     bio: "Pediatrician dedicated to child healthcare. Love classical dance, cooking, and spending time with children.",
     familySize: 4,
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -370,7 +316,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1987-08-22",
     country: "India",
-    address: "Chennai",
+    city: "Chennai",
     height: 173, // cm (approx 5'8")
     email: "rohit.kapoor@email.com",
     phone: "+91 98765 43219",
@@ -389,10 +335,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Maybe",
     openToRelocate: "Yes",
     openToPets: "No",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-15",
-    lastActivity: "2024-01-18",
     bio: "Operations manager with experience in e-commerce logistics. Enjoy cricket, movies, and exploring new cuisines.",
     familySize: 3,
     importanceOfCasteOfThePartner: "LOW",
@@ -405,7 +350,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1992-02-14",
     country: "India",
-    address: "Bangalore",
+    city: "Bangalore",
     height: 160, // cm (approx 5'3")
     email: "divya.iyer@email.com",
     phone: "+91 98765 43220",
@@ -415,7 +360,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Intel",
     designation: "Hardware Engineer",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Tamil", "Hindi", "English"],
     hobbies: ["Carnatic Music", "Reading", "Electronics DIY"],
     siblings: 2,
@@ -424,10 +369,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Maybe",
     openToPets: "Yes",
-    accountStatus: "new",
+    accountStatus: "matched",
     avatar: undefined,
     joinDate: "2024-01-19",
-    lastActivity: "2024-01-19",
     bio: "Hardware engineer passionate about technology and innovation. Love carnatic music, reading, and temple visits.",
     familySize: 5,
     importanceOfCasteOfThePartner: "HIGH",
@@ -440,7 +384,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Male",
     dateOfBirth: "1990-10-05",
     country: "India",
-    address: "Gurgaon",
+    city: "Gurgaon",
     height: 185, // cm (approx 6'1")
     email: "amit.verma@email.com",
     phone: "+91 98765 43221",
@@ -450,7 +394,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Unilever",
     designation: "Brand Manager",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English"],
     hobbies: ["Fitness", "Travel", "Entrepreneurship"],
     siblings: 1,
@@ -459,10 +403,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Yes",
     openToPets: "Maybe",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-10",
-    lastActivity: "2024-01-21",
     bio: "Brand manager with expertise in consumer goods marketing. Passionate about fitness, travel, and entrepreneurship.",
     familySize: 4,
     importanceOfCasteOfThePartner: "MEDIUM",
@@ -475,7 +418,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     gender: "Female",
     dateOfBirth: "1995-06-08",
     country: "India",
-    address: "Jaipur",
+    city: "Jaipur",
     height: 165, // cm (approx 5'5")
     email: "riya.bansal@email.com",
     phone: "+91 98765 43222",
@@ -485,7 +428,7 @@ export const dummyProfiles: FullCustomerProfile[] = [
     employmentType: "Private",
     company: "Teach for India",
     designation: "Program Manager",
-    maritalStatus: "Never Married",
+    maritalStatus: "NeverMarried",
     languages: ["Hindi", "English", "Rajasthani"],
     hobbies: ["Painting", "Classical Dance", "Social Work"],
     siblings: 0,
@@ -494,10 +437,9 @@ export const dummyProfiles: FullCustomerProfile[] = [
     wantKids: "Yes",
     openToRelocate: "Maybe",
     openToPets: "Yes",
-    accountStatus: "active",
+    accountStatus: "unmatched",
     avatar: undefined,
     joinDate: "2024-01-16",
-    lastActivity: "2024-01-20",
     bio: "Program manager working in education sector. Passionate about social impact, painting, and classical dance.",
     familySize: 3,
     importanceOfCasteOfThePartner: "LOW",
@@ -505,20 +447,22 @@ export const dummyProfiles: FullCustomerProfile[] = [
   },
 ];
 
-export const getCustomerProfiles = (): FullCustomerProfile[] => {
+export const getCustomerProfiles = (): ServerCustomerProfile[] => {
   return dummyProfiles;
 };
 
 export const getMatchingPool = (
   excludeIds: string[] = [],
-): FullCustomerProfile[] => {
+): ServerCustomerProfile[] => {
   return dummyProfiles.filter((profile) => !excludeIds.includes(profile.id));
 };
 
-export const getProfileById = (id: string): FullCustomerProfile | undefined => {
+export const getProfileById = (
+  id: string,
+): ServerCustomerProfile | undefined => {
   return dummyProfiles.find((profile) => profile.id === id);
 };
 
-export const getDummyProfiles = (): FullCustomerProfile[] => {
+export const getDummyProfiles = (): ServerCustomerProfile[] => {
   return dummyProfiles;
 };
