@@ -46,7 +46,7 @@ export const serverCustomerProfileSchema = z.object({
     .string()
     .min(1)
     .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
-  height: z.number().positive(),
+  height: z.number().nonnegative(),
   email: z
     .string()
     .email()
@@ -55,7 +55,7 @@ export const serverCustomerProfileSchema = z.object({
     .string()
     .min(10)
     .max(10)
-    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    .transform((s) => s.trim()),
   college: z
     .string()
     .min(1)
@@ -143,7 +143,7 @@ export const customerSchema = z.object({
     .string()
     .min(10)
     .max(10)
-    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    .transform((s) => s.trim()),
   dateOfBirth: z
     .string()
     .min(1)
@@ -160,7 +160,7 @@ export const customerSchema = z.object({
   height: z
     .string()
     .min(3)
-    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    .transform((s) => s.trim()),
   college: z
     .string()
     .min(2)
@@ -172,7 +172,7 @@ export const customerSchema = z.object({
   income: z
     .string()
     .min(1)
-    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    .transform((s) => s.trim()),
   company: z
     .string()
     .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),

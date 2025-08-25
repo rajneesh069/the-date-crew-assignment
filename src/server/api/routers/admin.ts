@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, adminProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { createUserSchema, updateUserSchema } from "@/types/user";
+import { seedCustomers } from "@/lib/dummy-profiles";
 
 export const adminRouter = createTRPCRouter({
   getAllUsers: adminProcedure
@@ -122,4 +123,8 @@ export const adminRouter = createTRPCRouter({
         },
       });
     }),
+  seedUsers: adminProcedure.mutation(async ({ ctx }) => {
+    await seedCustomers(ctx.db);
+    return { message: "seeded the db" };
+  }),
 });

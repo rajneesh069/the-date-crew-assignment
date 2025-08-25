@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   Heart,
   Users,
-  Mail,
   Phone,
   MapPin,
   Briefcase,
@@ -25,6 +24,7 @@ import {
 import Link from "next/link";
 import { api } from "@/trpc/react";
 import { LoaderOverlay } from "../ui/loader";
+import { useRouter } from "next/navigation";
 
 const statusColors = {
   matched: "bg-green-100 text-green-800 border-green-200",
@@ -39,7 +39,7 @@ const preferenceColors = {
 };
 
 export function CustomerProfile() {
-  // const router = useRouter();
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const { data: customer, isLoading } = api.customer.getCustomer.useQuery({
     customerId: id,
@@ -50,8 +50,7 @@ export function CustomerProfile() {
     new Date(customer?.dateOfBirth ?? "").getFullYear();
 
   const handleFindMatches = () => {
-    // For now, just show an alert - this can be enhanced later
-    alert(`Finding matches for ${customer?.firstName} ${customer?.lastName}`);
+    router.push(`/client/matches/${customer?.id}`);
   };
 
   return (
@@ -305,6 +304,7 @@ export function CustomerProfile() {
                       {customer?.wantKids}
                     </Badge>
                   </div>
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Globe className="h-4 w-4 text-gray-600" />
@@ -320,6 +320,7 @@ export function CustomerProfile() {
                       {customer?.openToRelocate}
                     </Badge>
                   </div>
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <PawPrint className="h-4 w-4 text-gray-600" />
@@ -333,6 +334,30 @@ export function CustomerProfile() {
                       }
                     >
                       {customer?.openToPets}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-gray-600" />
+                      <label className="text-sm font-medium text-gray-600">
+                        Importance of Caste in Partner
+                      </label>
+                    </div>
+                    <Badge className="border-amber-200 bg-amber-100 text-amber-800">
+                      {customer?.importanceOfCasteOfThePartner}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-gray-600" />
+                      <label className="text-sm font-medium text-gray-600">
+                        Importance of Religion in Partner
+                      </label>
+                    </div>
+                    <Badge className="border-amber-200 bg-amber-100 text-amber-800">
+                      {customer?.importanceOfReligionOfThePartner}
                     </Badge>
                   </div>
                 </div>
@@ -375,7 +400,7 @@ export function CustomerProfile() {
             </Card>
           </div>
 
-          <div className="mt-4 flex flex-col space-y-3 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 md:mt-6">
+          {/* <div className="mt-4 flex flex-col space-y-3 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4 md:mt-6">
             <Button
               variant="outline"
               className="w-full border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50 sm:w-auto"
@@ -397,7 +422,7 @@ export function CustomerProfile() {
               <Heart className="mr-2 h-4 w-4" />
               Find Matches
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </LoaderOverlay>
