@@ -151,21 +151,25 @@ export function AddCustomer() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center space-x-3">
             <Link href={"/client"}>
-              <Button variant="ghost" className="flex items-center space-x-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Dashboard</span>
+              <Button
+                variant="ghost"
+                className="text-amber-700 hover:bg-amber-100"
+                size="sm"
+              >
+                <ArrowLeft className="h-4 w-4 md:mr-2" />
+                <span className="hidden sm:block">Back to Dashboard</span>
               </Button>
             </Link>
             <div className="bg-border mx-2 h-6 w-px" />
             <div className="flex items-center space-x-2">
               <Heart className="text-primary h-6 w-6" />
-              <Users className="text-secondary h-6 w-6" />
+              <Users className="text-secondary hidden h-6 w-6 md:block" />
             </div>
             <div>
               <h1 className="gradient-text text-xl font-semibold">
                 Add New Customer
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground hidden md:text-sm">
                 Complete customer profile
               </p>
             </div>

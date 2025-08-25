@@ -28,7 +28,7 @@ export default async function SignIn({
   }).format(new Date());
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center">
+    <div className="flex min-h-screen w-full items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and Header */}
         <div className="space-y-4 text-center">
@@ -47,7 +47,7 @@ export default async function SignIn({
           </div>
         </div>
         <div>
-          {!adminActivated && (
+          {adminActivated && adminActivated === "false" && (
             <ShowToast message={"Please ask for admin activation."} />
           )}
         </div>

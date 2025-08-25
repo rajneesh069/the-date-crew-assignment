@@ -182,7 +182,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
               <Heart className="text-primary h-6 w-6" />
-              <Users className="text-secondary h-6 w-6" />
+              <Users className="text-secondary hidden h-6 w-6 md:block" />
             </div>
             <div>
               <h1 className="gradient-text text-xl font-semibold">
@@ -191,7 +191,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
               <p className="text-muted-foreground text-sm">Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2 md:flex-row">
             {role === "ADMIN" && (
               <Link href={"/admin"}>
                 <Button
@@ -299,7 +299,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 flex items-center space-x-4">
+            <div className="mb-6 flex flex-col items-center gap-3 space-x-4 md:flex-row md:gap-0">
               <div className="relative flex-1">
                 <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
@@ -327,7 +327,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
               </Select>
 
               <Link href="/client/add-customer">
-                <Button className="flex items-center space-x-2">
+                <Button className="flex items-center">
                   <Plus className="h-4 w-4" />
                   <span>Add Customer</span>
                 </Button>
@@ -338,7 +338,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
             <div className="mb-6 space-y-2">
               {filteredCustomers.map((customer) => (
                 <div
-                  className="border-border hover:bg-muted/50 card-hover flex items-center justify-between rounded-lg border p-4 transition-colors"
+                  className="border-border hover:bg-muted/50 card-hover flex flex-col items-center justify-between gap-3 rounded-lg border p-4 transition-colors md:flex-row"
                   key={customer.id}
                 >
                   <Link
@@ -374,7 +374,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                       </div>
                     </div>
                   </Link>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-1">
                     <Badge className={statusColors[customer.status]}>
                       {customer.status.charAt(0).toUpperCase() +
                         customer.status.slice(1)}
@@ -437,7 +437,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
               searchCustomersData?.totalPages ??
               1) >= 1 && (
               <div className="border-border border-t pt-4">
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-4 flex flex-col items-center justify-between gap-3 md:flex-row">
                   <div className="flex items-center space-x-4">
                     <p className="text-muted-foreground text-sm">
                       Showing {(currentPage - 1) * (pageSize ?? 10) + 1} to{" "}
@@ -452,7 +452,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                       size="sm"
                       onClick={() => handlePageChange(1)}
                       disabled={!customersData?.hasPreviousPage}
-                      className="bg-transparent"
+                      className="hidden bg-transparent md:block"
                     >
                       First
                     </Button>
@@ -488,7 +488,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                       size="sm"
                       onClick={() => handlePageChange(totalPages)}
                       disabled={!customersData?.hasNextPage}
-                      className="bg-transparent"
+                      className="hidden bg-transparent md:block"
                     >
                       Last
                     </Button>

@@ -90,6 +90,7 @@ export function Home() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<ServerUser | null>(null);
+  const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
 
   const createForm = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
@@ -207,7 +208,12 @@ export function Home() {
   };
 
   async function toggleUserActivation(userId: string, current: boolean) {
-    await toggleMutation.mutateAsync({ userId, adminActivated: !current });
+    try {
+      setLoadingUserId(userId);
+      await toggleMutation.mutateAsync({ userId, adminActivated: !current });
+    } finally {
+      setLoadingUserId(null);
+    }
   }
 
   const users = data?.users ?? [];
@@ -350,7 +356,7 @@ export function Home() {
 
         <Card className="border-amber-200 bg-white/90 p-0 shadow-xl backdrop-blur-sm">
           <CardHeader className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col items-center justify-between gap-2 md:flex-row">
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl text-amber-900">
                   <Users className="h-5 w-5" />
@@ -531,9 +537,9 @@ export function Home() {
                     {users.map((user) => (
                       <div
                         key={user.id}
-                        className="flex items-center justify-between rounded-xl border border-amber-100 bg-gradient-to-r from-white to-amber-50/30 p-5 shadow-sm transition-all duration-200 hover:shadow-md"
+                        className="flex flex-col items-center justify-between gap-2 rounded-xl border border-amber-100 bg-gradient-to-r from-white to-amber-50/30 p-5 shadow-sm transition-all duration-200 hover:shadow-md md:flex-row"
                       >
-                        <div className="flex items-center space-x-4">
+                        <div className="flex flex-col items-center space-x-4 md:flex-row">
                           <div className="relative">
                             {user.image ? (
                               <Image
@@ -552,14 +558,14 @@ export function Home() {
                               <div className="absolute -right-1 -bottom-1 h-4 w-4 rounded-full border-2 border-white bg-green-500"></div>
                             )}
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 p-2 text-center md:text-start">
                             <p className="font-semibold text-amber-900">
                               {user.name ?? "No name"}
                             </p>
-                            <p className="text-sm text-amber-600">
+                            <p className="text-sm text-wrap text-amber-600">
                               {user.email}
                             </p>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center justify-center space-x-2 md:justify-start">
                               <Badge
                                 variant={
                                   user.role === "ADMIN"
@@ -623,7 +629,7 @@ export function Home() {
                                 }
                                 disabled={toggleMutation.isPending}
                               >
-                                {toggleMutation.isPending ? (
+                                {loadingUserId === user.id ? (
                                   <Loader size="sm" />
                                 ) : user.adminActivated ? (
                                   "Deactivate"
