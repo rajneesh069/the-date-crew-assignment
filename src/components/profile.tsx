@@ -21,12 +21,6 @@ import { LoaderOverlay } from "./ui/loader";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-const statusColors = {
-  matched: "bg-green-100 text-green-800 border-green-200",
-  unmatched: "bg-purple-100 text-purple-800 border-purple-200",
-  paused: "bg-gray-100 text-gray-800 border-gray-200",
-};
-
 const preferenceColors = {
   Yes: "bg-green-100 text-green-800 border-green-200",
   No: "bg-red-100 text-red-800 border-red-200",
