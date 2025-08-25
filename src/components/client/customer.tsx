@@ -80,14 +80,26 @@ export function CustomerProfile() {
                 Detailed view
               </p>
             </div>
-            <Button
-              onClick={handleFindMatches}
-              className="flex items-center bg-amber-600 text-white hover:bg-amber-700 md:space-x-2"
-              size="sm"
-            >
-              <Heart className="h-4 w-4" />
-              <span className="hidden sm:block">Find Matches</span>
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Link href={`/profile/${customer?.id}`}>
+                <Button
+                  variant="outline"
+                  className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
+                  size="sm"
+                >
+                  <Globe className="h-4 w-4 md:mr-2" />
+                  <span className="hidden sm:block">Public Profile</span>
+                </Button>
+              </Link>
+              <Button
+                onClick={handleFindMatches}
+                className="flex items-center bg-amber-600 text-white hover:bg-amber-700 md:space-x-2"
+                size="sm"
+              >
+                <Heart className="h-4 w-4" />
+                <span className="hidden sm:block">Find Matches</span>
+              </Button>
+            </div>
           </div>
         </header>
 
