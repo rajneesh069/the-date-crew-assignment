@@ -1,11 +1,10 @@
-// components/AddCustomer.tsx (or app/addCustomer/page.tsx depending where you keep it)
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { type z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,47 +36,7 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { api } from "@/trpc/react";
-
-const customerSchema = z.object({
-  firstName: z.string().min(2),
-  lastName: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(10).max(10),
-  dateOfBirth: z.string().min(1),
-  gender: z.enum(["Male", "Female"]),
-  country: z.string().min(2),
-  city: z.string().min(2),
-  height: z.string().min(1),
-  college: z.string().min(2),
-  degree: z.string().min(2),
-  income: z.string().min(1),
-  company: z.string(),
-  designation: z.string().min(2),
-  maritalStatus: z.enum(["NeverMarried", "Divorced"]),
-  languages: z.string().min(1),
-  siblings: z.string().min(1),
-  caste: z.string().min(1),
-  religion: z.enum([
-    "No Religion / Atheist",
-    "Hindu",
-    "Muslim",
-    "Sikh",
-    "Christian",
-    "Buddhist",
-    "Jain",
-    "Parsi (Zoroastrian)",
-    "Spiritual (but not religious)",
-  ]),
-  wantKids: z.enum(["Yes", "No", "Maybe"]),
-  openToRelocate: z.enum(["Yes", "No", "Maybe"]),
-  openToPets: z.enum(["Yes", "No", "Maybe"]),
-  bio: z.string().min(10),
-  familySize: z.string().min(1),
-  employmentType: z.enum(["Government", "Private"]),
-  hobbies: z.string().min(1),
-  importanceOfCasteOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
-  importanceOfReligionOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
-});
+import { customerSchema } from "@/types/customer";
 
 type CustomerFormData = z.infer<typeof customerSchema>;
 

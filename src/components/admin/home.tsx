@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  User,
+  MoreVertical,
 } from "lucide-react";
 import {
   Card,
@@ -56,9 +58,15 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import type { ServerUser } from "@/server/api/routers/users";
+import type { ServerUser } from "@/types/user";
 import { Loader, LoaderOverlay } from "../ui/loader";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const userFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -234,17 +242,38 @@ export function Home() {
                 </p>
               </div>
             </div>
-
-            <div className="flex-shrink-0">
-              <Link href="/api/auth/signout">
-                <Button
-                  variant="outline"
-                  className="border-amber-200 bg-white/90 text-amber-700 shadow-sm hover:bg-amber-50 hover:text-amber-800"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
-              </Link>
+            <div className="absolute top-6 right-6">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-amber-200 bg-white/90 hover:bg-amber-50"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/client"
+                      className="flex cursor-pointer items-center"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Client
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/api/auth/signout"
+                      className="flex cursor-pointer items-center"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
