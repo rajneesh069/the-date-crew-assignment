@@ -239,10 +239,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                 <div>
                   <p className="text-muted-foreground text-sm">Matched</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {
-                      filteredCustomers.filter((c) => c.status === "matched")
-                        .length
-                    }
+                    {customersData?.totalMatched}
                   </p>
                 </div>
                 <Heart className="h-8 w-8 text-green-600/60" />
@@ -256,10 +253,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                 <div>
                   <p className="text-muted-foreground text-sm">Unmatched</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {
-                      filteredCustomers.filter((c) => c.status === "unmatched")
-                        .length
-                    }
+                    {customersData?.totalUnmatched}
                   </p>
                 </div>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
@@ -275,10 +269,7 @@ export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
                 <div>
                   <p className="text-muted-foreground text-sm">Paused</p>
                   <p className="text-2xl font-bold text-gray-600">
-                    {
-                      filteredCustomers.filter((c) => c.status === "paused")
-                        .length
-                    }
+                    {customersData?.totalPaused}
                   </p>
                 </div>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">

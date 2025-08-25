@@ -55,17 +55,24 @@ export const customerRouter = createTRPCRouter({
 
       const where: Prisma.CustomerWhereInput = { userId };
 
-      const [customers, totalCount] = await Promise.all([
-        ctx.db.customer.findMany({
-          where: {
-            userId,
-          },
-          take: pageSize,
-          skip: (currentPage - 1) * pageSize,
-          orderBy: { joinDate: "desc" },
-        }),
-        ctx.db.customer.count({ where }),
-      ]);
+      const [customers, totalCount, totalUnmatched, totalMatched] =
+        await Promise.all([
+          ctx.db.customer.findMany({
+            where: {
+              userId,
+            },
+            take: pageSize,
+            skip: (currentPage - 1) * pageSize,
+            orderBy: { joinDate: "desc" },
+          }),
+          ctx.db.customer.count({ where }),
+          ctx.db.customer.count({
+            where: { userId, accountStatus: "unmatched" },
+          }),
+          ctx.db.customer.count({
+            where: { userId, accountStatus: "matched" },
+          }),
+        ]);
 
       const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -77,6 +84,9 @@ export const customerRouter = createTRPCRouter({
         currentPage,
         customers,
         totalCount,
+        totalMatched,
+        totalUnmatched,
+        totalPaused: totalCount - (totalMatched + totalUnmatched),
       };
     }),
 

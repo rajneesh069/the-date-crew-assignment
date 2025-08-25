@@ -219,4 +219,5 @@ export const customerSchema = z.object({
   employmentType: z.enum(["Government", "Private"]),
   importanceOfCasteOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
   importanceOfReligionOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
+  accountStatus: z.enum(["unmatched", "matched", "paused"]),
 });

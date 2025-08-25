@@ -66,6 +66,7 @@ export function EditCustomer({
       familySize: initialCustomer?.familySize.toString(),
       hobbies: initialCustomer?.hobbies.join(", "),
       company: initialCustomer?.company ?? "NA",
+      accountStatus: initialCustomer?.accountStatus ?? "unmatched",
     },
   });
 
@@ -99,7 +100,6 @@ export function EditCustomer({
         .map((s) => s.trim())
         .filter(Boolean),
       company: values.company === "NA" ? null : values.company,
-      accountStatus: "unmatched" as const,
     };
 
     await updateMutation.mutateAsync({ customerId, data: payloadData });
@@ -275,6 +275,31 @@ export function EditCustomer({
                               Never Married
                             </SelectItem>
                             <SelectItem value="Divorced">Divorced</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="accountStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select marital status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="unmatched">Unmatched</SelectItem>
+                            <SelectItem value="matched">Matched</SelectItem>
+                            <SelectItem value="paused">Paused</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
