@@ -1,17 +1,13 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
-  ArrowLeft,
   Heart,
   Users,
-  Mail,
-  Phone,
   MapPin,
   Briefcase,
   GraduationCap,
@@ -19,12 +15,11 @@ import {
   Globe,
   Baby,
   PawPrint,
-  IndianRupee,
-  MailIcon,
 } from "lucide-react";
-import Link from "next/link";
 import { api } from "@/trpc/react";
-import { LoaderOverlay } from "../ui/loader";
+import { LoaderOverlay } from "./ui/loader";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
 const statusColors = {
   matched: "bg-green-100 text-green-800 border-green-200",
@@ -38,10 +33,9 @@ const preferenceColors = {
   Maybe: "bg-yellow-100 text-yellow-800 border-yellow-200",
 };
 
-export function CustomerProfile() {
-  // const router = useRouter();
+export function CustomerPublicProfile() {
   const { id } = useParams<{ id: string }>();
-  const { data: customer, isLoading } = api.customer.getCustomer.useQuery({
+  const { data: customer, isLoading } = api.customer.getPublicProfile.useQuery({
     customerId: id,
   });
 
@@ -49,44 +43,26 @@ export function CustomerProfile() {
     new Date().getFullYear() -
     new Date(customer?.dateOfBirth ?? "").getFullYear();
 
-  const handleFindMatches = () => {
-    // For now, just show an alert - this can be enhanced later
-    alert(`Finding matches for ${customer?.firstName} ${customer?.lastName}`);
-  };
-
   return (
     <LoaderOverlay isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
         <header className="border-b border-amber-200 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-3">
-              <Link href={"/client"}>
-                <Button
-                  variant="ghost"
-                  className="text-amber-700 hover:bg-amber-100"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Dashboard
-                </Button>
-              </Link>
               <div className="flex items-center space-x-2">
                 <Heart className="h-6 w-6 text-amber-600" />
                 <Users className="h-6 w-6 text-amber-500" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  Customer Profile
-                </h1>
-                <p className="text-sm text-gray-600">Detailed view</p>
+                <h1 className="text-xl font-semibold text-gray-900">Profile</h1>
               </div>
             </div>
-            <Button
-              onClick={handleFindMatches}
-              className="flex items-center space-x-2 bg-amber-600 text-white hover:bg-amber-700"
-            >
-              <Heart className="h-4 w-4" />
-              <span>Find Matches</span>
-            </Button>
+            <Link href={"https://thedatecrew.com"}>
+              <Button className="flex items-center space-x-0 bg-amber-600 text-white hover:bg-amber-700">
+                <Heart className="h-4 w-4" />
+                <span>Match</span>
+              </Button>
+            </Link>
           </div>
         </header>
 
@@ -125,14 +101,6 @@ export function CustomerProfile() {
                       <span>
                         {customer?.city}, {customer?.country}
                       </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <MailIcon className="h-4 w-4" />
-                      <span>{customer?.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4" />
-                      <span>{customer?.phone}</span>
                     </div>
                   </div>
                   {customer?.bio && (
@@ -251,13 +219,6 @@ export function CustomerProfile() {
                       {customer?.designation}
                     </p>
                   </div>
-                  <div>
-                    <label className="flex items-center space-x-1 text-sm font-medium text-gray-600">
-                      <IndianRupee className="h-4 w-4" />
-                      <span>Annual Income</span>
-                    </label>
-                    <p className="text-sm font-medium">{customer?.income}</p>
-                  </div>
                 </div>
                 <Separator className="bg-amber-200" />
                 <div className="grid grid-cols-1 gap-4">
@@ -346,47 +307,9 @@ export function CustomerProfile() {
                       {new Date(customer?.joinDate ?? "").toLocaleDateString()}
                     </p>
                   </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">
-                      Days Since Join
-                    </label>
-                    <p className="text-sm font-medium">
-                      {Math.floor(
-                        (new Date().getTime() -
-                          new Date(customer?.joinDate ?? "").getTime()) /
-                          (1000 * 60 * 60 * 24),
-                      )}{" "}
-                      days
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          <div className="mt-6 flex justify-center space-x-4">
-            <Button
-              variant="outline"
-              className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Send Message
-            </Button>
-            <Button
-              variant="outline"
-              className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Schedule Call
-            </Button>
-            <Button
-              onClick={handleFindMatches}
-              className="bg-amber-600 text-white hover:bg-amber-700"
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              Find Matches
-            </Button>
           </div>
         </div>
       </div>

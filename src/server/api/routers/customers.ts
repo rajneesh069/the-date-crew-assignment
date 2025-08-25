@@ -1,4 +1,3 @@
-// server/routers/customer.ts
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
@@ -190,7 +189,23 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  getCustomer: publicProcedure
+  getCustomer: protectedProcedure
+    .input(z.object({ customerId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const user = await ctx.db.customer.findFirst({
+        where: { userId, id: input.customerId },
+      });
+
+      if (!user)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Customer not found",
+        });
+      return user;
+    }),
+
+  getPublicProfile: publicProcedure
     .input(z.object({ customerId: z.string() }))
     .query(async ({ ctx, input }) => {
       const user = await ctx.db.customer.findFirst({
@@ -202,7 +217,7 @@ export const customerRouter = createTRPCRouter({
           code: "NOT_FOUND",
           message: "Customer not found",
         });
-      return user;
+      return { ...user, phone: null, income: null, email: null };
     }),
 
   // update accepts an object with customerId and partial data
