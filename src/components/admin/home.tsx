@@ -91,7 +91,7 @@ export function Home() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<ServerUser | null>(null);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
-  const [seeding, setSeeding] = useState(false);
+  // const [seeding, setSeeding] = useState(false);
 
   const createForm = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
@@ -119,10 +119,10 @@ export function Home() {
     page: currentPage,
   });
   const utils = api.useUtils();
-  const seedMutation = api.admin.seedUsers.useMutation({
-    onSuccess: () => toast("Users seeded successfully"),
-    onError: () => toast("Couldn't seed"),
-  });
+  // const seedMutation = api.admin.seedUsers.useMutation({
+  //   onSuccess: () => toast("Users seeded successfully"),
+  //   onError: () => toast("Couldn't seed"),
+  // });
 
   const createMutation = api.admin.createUser.useMutation({
     onSuccess: async () => {
@@ -181,14 +181,14 @@ export function Home() {
     },
   });
 
-  const handleSeeding = async () => {
-    setSeeding(true);
-    try {
-      await seedMutation.mutateAsync();
-    } finally {
-      setSeeding(false);
-    }
-  };
+  // const handleSeeding = async () => {
+  //   setSeeding(true);
+  //   try {
+  //     await seedMutation.mutateAsync();
+  //   } finally {
+  //     setSeeding(false);
+  //   }
+  // };
 
   const handleCreateUser = async (data: UserFormData) => {
     await createMutation.mutateAsync(data);
@@ -261,9 +261,9 @@ export function Home() {
                   permissions for The Date Crew platform
                 </p>
               </div>
-              <Button onClick={handleSeeding}>
+              {/* <Button onClick={handleSeeding}>
                 {seeding ? "Seeding" : "Seed"}
-              </Button>
+              </Button> */}
             </div>
             <div className="absolute top-6 right-6">
               <DropdownMenu>
