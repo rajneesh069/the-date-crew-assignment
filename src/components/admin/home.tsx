@@ -113,17 +113,17 @@ export function Home() {
     },
   });
 
-  const { data, isLoading } = api.user.getAllUsers.useQuery({
+  const { data, isLoading } = api.admin.getAllUsers.useQuery({
     page: currentPage,
   });
   const utils = api.useUtils();
 
-  const createMutation = api.user.createUser.useMutation({
+  const createMutation = api.admin.createUser.useMutation({
     onSuccess: async () => {
       toast("User created successfully", {
         className: "text-white bg-green-500",
       });
-      await utils.user.getAllUsers.invalidate();
+      await utils.admin.getAllUsers.invalidate();
       setIsCreateDialogOpen(false);
       createForm.reset();
     },
@@ -132,12 +132,12 @@ export function Home() {
     },
   });
 
-  const updateMutation = api.user.updateUser.useMutation({
+  const updateMutation = api.admin.updateUser.useMutation({
     onSuccess: async () => {
       toast("User updated successfully", {
         className: "text-white bg-green-500",
       });
-      await utils.user.getAllUsers.invalidate();
+      await utils.admin.getAllUsers.invalidate();
       setIsEditDialogOpen(false);
       setEditingUser(null);
       editForm.reset();
@@ -147,12 +147,12 @@ export function Home() {
     },
   });
 
-  const deleteMutation = api.user.deleteUser.useMutation({
+  const deleteMutation = api.admin.deleteUser.useMutation({
     onSuccess: async () => {
       toast("User deleted successfully", {
         className: "text-white bg-green-500",
       });
-      await utils.user.getAllUsers.invalidate();
+      await utils.admin.getAllUsers.invalidate();
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     },
@@ -161,12 +161,12 @@ export function Home() {
     },
   });
 
-  const toggleMutation = api.user.toggleUserActivation.useMutation({
+  const toggleMutation = api.admin.toggleUserActivation.useMutation({
     onSuccess: async () => {
       toast("User activation toggled", {
         className: "text-white bg-green-500",
       });
-      await utils.user.getAllUsers.invalidate();
+      await utils.admin.getAllUsers.invalidate();
     },
     onError: () => {
       toast("Failed to toggle user activation", {

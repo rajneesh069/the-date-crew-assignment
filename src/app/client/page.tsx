@@ -14,7 +14,7 @@ export default async function ClientHomePage() {
 
   return (
     <HydrateClient>
-      <Dashboard />
+      <Dashboard role={session.user.role} />
     </HydrateClient>
   );
 }

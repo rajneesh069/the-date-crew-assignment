@@ -1,4 +1,4 @@
-import type { ServerCustomerProfile } from "@/server/api/routers/customers";
+import type { ServerCustomerProfile } from "@/server/api/routers/customer";
 
 export const dummyProfiles: ServerCustomerProfile[] = [
   {

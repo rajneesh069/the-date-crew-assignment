@@ -1,4 +1,5 @@
 import { SignInButton } from "@/components/auth/signin-button";
+import { ShowToast } from "@/components/toast";
 import {
   Card,
   CardContent,
@@ -8,14 +9,20 @@ import {
 } from "@/components/ui/card";
 import { auth } from "@/server/auth";
 import { Heart } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
-export default async function SignIn() {
+export default async function SignIn({
+  searchParams,
+}: {
+  searchParams: Promise<{ adminActivated: string }>;
+}) {
   const session = await auth();
   if (session?.user) {
     redirect("/client");
   }
-
+  const { adminActivated } = await searchParams;
   const year = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
@@ -40,7 +47,11 @@ export default async function SignIn() {
             </p>
           </div>
         </div>
-
+        <div>
+          {!adminActivated && (
+            <ShowToast message={"Please ask for admin activation."} />
+          )}
+        </div>
         {/* Sign In Card */}
         <Card className="border-amber-200 bg-white/80 shadow-xl backdrop-blur-sm">
           <CardHeader className="space-y-1 text-center">
@@ -53,6 +64,31 @@ export default async function SignIn() {
           </CardHeader>
           <CardContent className="space-y-6">
             <SignInButton />
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-amber-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-amber-600">Or</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Link
+                href="/auth/signin"
+                className="flex h-12 w-full items-center justify-center rounded-md border border-amber-300 bg-white text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-800"
+              >
+                Sign in with email →
+              </Link>
+
+              <Link
+                href="/auth/signup"
+                className="flex h-12 w-full items-center justify-center rounded-md bg-amber-100 text-amber-800 transition-colors hover:bg-amber-200"
+              >
+                Want to signup with email?
+              </Link>
+            </div>
 
             <div className="text-center">
               <p className="text-sm text-amber-600">

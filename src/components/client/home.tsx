@@ -44,7 +44,6 @@ import {
 } from "@/components/ui/dialog";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
 
 const statusColors: Record<string, string> = {
   unmatched: "bg-purple-100 text-purple-800 border-purple-200",
@@ -52,8 +51,7 @@ const statusColors: Record<string, string> = {
   paused: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
-export function Dashboard() {
-  const session = useSession();
+export function Dashboard({ role }: { role: "ADMIN" | "MATCHMAKER" }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -194,7 +192,7 @@ export function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {session.data?.user.role === "ADMIN" && (
+            {role === "ADMIN" && (
               <Link href={"/admin"}>
                 <Button
                   variant="outline"

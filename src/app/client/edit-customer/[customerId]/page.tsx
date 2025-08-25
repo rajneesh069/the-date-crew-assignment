@@ -1,5 +1,5 @@
 import { EditCustomer } from "@/components/client/edit-customer";
-import type { ReligionSchemaType } from "@/server/api/routers/customers";
+import type { ReligionSchemaType } from "@/types/customer";
 import { auth } from "@/server/auth";
 import { api, HydrateClient } from "@/trpc/server";
 

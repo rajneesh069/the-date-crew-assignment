@@ -147,7 +147,6 @@ export const customerRouter = createTRPCRouter({
       return { ...user, phone: null, income: null, email: null };
     }),
 
-  // update accepts an object with customerId and partial data
   updateCustomer: protectedProcedure
     .input(
       z.object({

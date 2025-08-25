@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, adminProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { createUserSchema, updateUserSchema } from "@/types/user";
 
-export const userRouter = createTRPCRouter({
-  getAllUsers: protectedProcedure
+export const adminRouter = createTRPCRouter({
+  getAllUsers: adminProcedure
     .input(z.object({ page: z.number().default(1) }))
     .query(async ({ input, ctx }) => {
       const page = input.page;
@@ -39,7 +39,7 @@ export const userRouter = createTRPCRouter({
       };
     }),
 
-  createUser: protectedProcedure
+  createUser: adminProcedure
     .input(createUserSchema)
     .mutation(async ({ input, ctx }) => {
       const newUser = await ctx.db.user.create({
@@ -56,7 +56,7 @@ export const userRouter = createTRPCRouter({
       return newUser;
     }),
 
-  deleteUser: protectedProcedure
+  deleteUser: adminProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const deletedUser = await ctx.db.user.delete({
@@ -75,7 +75,7 @@ export const userRouter = createTRPCRouter({
       return deletedUser;
     }),
 
-  getUserById: protectedProcedure
+  getUserById: adminProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.user.findFirst({
@@ -85,7 +85,7 @@ export const userRouter = createTRPCRouter({
       });
     }),
 
-  updateUser: protectedProcedure
+  updateUser: adminProcedure
     .input(updateUserSchema)
     .mutation(async ({ input, ctx }) => {
       const user = await ctx.db.user.update({
@@ -105,7 +105,7 @@ export const userRouter = createTRPCRouter({
       return user;
     }),
 
-  toggleUserActivation: protectedProcedure
+  toggleUserActivation: adminProcedure
     .input(
       z.object({
         userId: z.string(),
