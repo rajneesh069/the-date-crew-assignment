@@ -1,6 +1,6 @@
 // server/routers/customer.ts
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import type { Prisma } from "@prisma/client";
 
@@ -190,12 +190,11 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  getCustomer: protectedProcedure
+  getCustomer: publicProcedure
     .input(z.object({ customerId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
       const user = await ctx.db.customer.findFirst({
-        where: { userId, id: input.customerId },
+        where: { id: input.customerId },
       });
 
       if (!user)

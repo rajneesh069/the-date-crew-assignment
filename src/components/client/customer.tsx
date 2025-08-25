@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { api } from "@/trpc/react";
 import { LoaderOverlay } from "../ui/loader";
+import { useSession } from "next-auth/react";
 
 const statusColors = {
   matched: "bg-green-100 text-green-800 border-green-200",
@@ -39,7 +40,7 @@ const preferenceColors = {
 };
 
 export function CustomerProfile() {
-  // const router = useRouter();
+  const session = useSession();
   const { id } = useParams<{ id: string }>();
   const { data: customer, isLoading } = api.customer.getCustomer.useQuery({
     customerId: id,
@@ -60,15 +61,17 @@ export function CustomerProfile() {
         <header className="border-b border-amber-200 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-3">
-              <Link href={"/client"}>
-                <Button
-                  variant="ghost"
-                  className="text-amber-700 hover:bg-amber-100"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Dashboard
-                </Button>
-              </Link>
+              {session.data?.user && (
+                <Link href={"/client"}>
+                  <Button
+                    variant="ghost"
+                    className="text-amber-700 hover:bg-amber-100"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                  </Button>
+                </Link>
+              )}
               <div className="flex items-center space-x-2">
                 <Heart className="h-6 w-6 text-amber-600" />
                 <Users className="h-6 w-6 text-amber-500" />
@@ -80,13 +83,15 @@ export function CustomerProfile() {
                 <p className="text-sm text-gray-600">Detailed view</p>
               </div>
             </div>
-            <Button
-              onClick={handleFindMatches}
-              className="flex items-center space-x-2 bg-amber-600 text-white hover:bg-amber-700"
-            >
-              <Heart className="h-4 w-4" />
-              <span>Find Matches</span>
-            </Button>
+            {session.data?.user && (
+              <Button
+                onClick={handleFindMatches}
+                className="flex items-center space-x-2 bg-amber-600 text-white hover:bg-amber-700"
+              >
+                <Heart className="h-4 w-4" />
+                <span>Find Matches</span>
+              </Button>
+            )}
           </div>
         </header>
 
@@ -347,47 +352,51 @@ export function CustomerProfile() {
                     </p>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">
-                      Days Since Join
-                    </label>
-                    <p className="text-sm font-medium">
-                      {Math.floor(
-                        (new Date().getTime() -
-                          new Date(customer?.joinDate ?? "").getTime()) /
-                          (1000 * 60 * 60 * 24),
-                      )}{" "}
-                      days
-                    </p>
-                  </div>
+                  {session.data?.user && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">
+                        Days Since Join
+                      </label>
+                      <p className="text-sm font-medium">
+                        {Math.floor(
+                          (new Date().getTime() -
+                            new Date(customer?.joinDate ?? "").getTime()) /
+                            (1000 * 60 * 60 * 24),
+                        )}{" "}
+                        days
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="mt-6 flex justify-center space-x-4">
-            <Button
-              variant="outline"
-              className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Send Message
-            </Button>
-            <Button
-              variant="outline"
-              className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Schedule Call
-            </Button>
-            <Button
-              onClick={handleFindMatches}
-              className="bg-amber-600 text-white hover:bg-amber-700"
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              Find Matches
-            </Button>
-          </div>
+          {session.data?.user && (
+            <div className="mt-6 flex justify-center space-x-4">
+              <Button
+                variant="outline"
+                className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Send Message
+              </Button>
+              <Button
+                variant="outline"
+                className="border-amber-300 bg-transparent text-amber-700 hover:bg-amber-50"
+              >
+                <Phone className="mr-2 h-4 w-4" />
+                Schedule Call
+              </Button>
+              <Button
+                onClick={handleFindMatches}
+                className="bg-amber-600 text-white hover:bg-amber-700"
+              >
+                <Heart className="mr-2 h-4 w-4" />
+                Find Matches
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </LoaderOverlay>

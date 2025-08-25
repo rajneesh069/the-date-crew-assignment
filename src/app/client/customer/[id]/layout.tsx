@@ -1,4 +1,4 @@
-export default async function ClientLayout({
+export default async function CustomerLayout({
   children,
 }: {
   children: React.ReactNode;
