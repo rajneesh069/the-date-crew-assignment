@@ -11,7 +11,6 @@ import { auth } from "@/server/auth";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { toast } from "sonner";
 
 export default async function SignIn({
   searchParams,

@@ -22,32 +22,81 @@ export const ImportanceSchema = z.union([
 
 export const serverCustomerProfileSchema = z.object({
   id: z.string(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  firstName: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  lastName: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   gender: z.union([z.literal("Male"), z.literal("Female")]),
-  // backend expects DD-MM-YYYY strings from client
   dateOfBirth: z
     .string()
     .regex(
       /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
       "Invalid date format, expected YYYY-MM-DD",
-    ),
-  country: z.string().min(1),
-  city: z.string().min(1),
-  height: z.number().int().positive(),
-  email: z.string().email(),
-  phone: z.string().min(10).max(10),
-  college: z.string().min(1),
-  degree: z.string().min(1),
+    )
+    .transform((s) => s.trim()),
+  country: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  city: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  height: z.number().positive(),
+  email: z
+    .string()
+    .email()
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  phone: z
+    .string()
+    .min(10)
+    .max(10)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  college: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  degree: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   income: z.number().int().nonnegative(),
   employmentType: z.union([z.literal("Government"), z.literal("Private")]),
-  company: z.string().nullable().optional(),
-  designation: z.string().min(1),
+  company: z
+    .string()
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim())
+    .nullable()
+    .optional(),
+  designation: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   maritalStatus: z.union([z.literal("NeverMarried"), z.literal("Divorced")]),
-  languages: z.array(z.string().min(1)).min(1),
-  hobbies: z.array(z.string().min(1)).min(1),
+  languages: z
+    .array(
+      z
+        .string()
+        .min(1)
+        .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    )
+    .min(1),
+  hobbies: z
+    .array(
+      z
+        .string()
+        .min(1)
+        .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+    )
+    .min(1),
   siblings: z.number().int().nonnegative(),
-  caste: z.string().min(1),
+  caste: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   religion: ReligionSchema,
   wantKids: z.union([z.literal("Yes"), z.literal("No"), z.literal("Maybe")]),
   openToRelocate: z.union([
@@ -66,7 +115,10 @@ export const serverCustomerProfileSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
-  bio: z.string().min(10),
+  bio: z
+    .string()
+    .min(200)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   familySize: z.number().int().positive(),
   importanceOfCasteOfThePartner: ImportanceSchema,
   importanceOfReligionOfThePartner: ImportanceSchema,
@@ -75,24 +127,72 @@ export const serverCustomerProfileSchema = z.object({
 export type ServerCustomerProfile = z.infer<typeof serverCustomerProfileSchema>;
 
 export const customerSchema = z.object({
-  firstName: z.string().min(2),
-  lastName: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(10).max(10),
-  dateOfBirth: z.string().min(1),
+  firstName: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  lastName: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  email: z
+    .string()
+    .email()
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  phone: z
+    .string()
+    .min(10)
+    .max(10)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  dateOfBirth: z
+    .string()
+    .min(1)
+    .transform((s) => s.trim()),
   gender: z.enum(["Male", "Female"]),
-  country: z.string().min(2),
-  city: z.string().min(2),
-  height: z.string().min(1),
-  college: z.string().min(2),
-  degree: z.string().min(2),
-  income: z.string().min(1),
-  company: z.string(),
-  designation: z.string().min(2),
+  country: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  city: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  height: z
+    .string()
+    .min(3)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  college: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  degree: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  income: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  company: z
+    .string()
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  designation: z
+    .string()
+    .min(2)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   maritalStatus: z.enum(["NeverMarried", "Divorced"]),
-  languages: z.string().min(1),
-  siblings: z.string().min(1),
-  caste: z.string().min(1),
+  languages: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  siblings: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
+  caste: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   religion: z.enum([
     "No Religion / Atheist",
     "Hindu",
@@ -107,10 +207,16 @@ export const customerSchema = z.object({
   wantKids: z.enum(["Yes", "No", "Maybe"]),
   openToRelocate: z.enum(["Yes", "No", "Maybe"]),
   openToPets: z.enum(["Yes", "No", "Maybe"]),
-  bio: z.string().min(10),
+  bio: z
+    .string()
+    .min(200)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   familySize: z.string().min(1),
+  hobbies: z
+    .string()
+    .min(1)
+    .transform((s) => s.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "").trim()),
   employmentType: z.enum(["Government", "Private"]),
-  hobbies: z.string().min(1),
   importanceOfCasteOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
   importanceOfReligionOfThePartner: z.enum(["HIGH", "MEDIUM", "LOW"]),
 });

@@ -32,7 +32,7 @@ const signInSchema = z.object({
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
-export default function EmailSignIn() {
+export function EmailSignIn() {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignInFormValues>({

@@ -1,4 +1,4 @@
-import EmailSignIn from "@/components/auth/signin";
+import { EmailSignIn } from "@/components/auth/signin";
 
 export default function EmailSigninPage() {
   return <EmailSignIn />;

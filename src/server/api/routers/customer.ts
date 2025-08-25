@@ -10,7 +10,17 @@ export const customerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // basic uniqueness check (fallback to Prisma P2002 still required in bigger apps)
+      if (
+        (input.importanceOfCasteOfThePartner === "HIGH" ||
+          input.importanceOfCasteOfThePartner == "MEDIUM") &&
+        input.importanceOfReligionOfThePartner !== "HIGH"
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Customer cannot want same/preferrably same caste and ask for different religion.",
+        });
+      }
       const existing = await ctx.db.customer.findFirst({
         where: { OR: [{ email: input.email }, { phone: input.phone }] },
       });

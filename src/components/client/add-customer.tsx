@@ -96,7 +96,7 @@ export function AddCustomer() {
       await utils.customer.getAllCustomers.invalidate();
       await utils.customer.search.invalidate();
       toast.success("Customer Added Successfully");
-      router.push("/client"); // back to dashboard
+      router.push("/client");
     },
     onError: (err) => {
       toast.error(err.shape?.code ?? "Failed to add customer");
@@ -105,6 +105,18 @@ export function AddCustomer() {
   });
 
   const onSubmit = async (data: CustomerFormData) => {
+    if (
+      (data.importanceOfCasteOfThePartner === "HIGH" ||
+        data.importanceOfCasteOfThePartner == "MEDIUM") &&
+      data.importanceOfReligionOfThePartner !== "HIGH"
+    ) {
+      toast.error("Please select proper caste and religion importance.", {
+        description:
+          "Customer cannot want same/preferrably same caste and ask for different religion.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -125,7 +137,6 @@ export function AddCustomer() {
         company: data.company === "NA" ? null : data.company,
         accountStatus: "unmatched" as const,
       };
-
       await createMutation.mutateAsync(payload);
       form.reset();
     } finally {

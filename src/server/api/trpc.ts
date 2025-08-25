@@ -121,7 +121,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.user) {
+    if (!ctx.session?.user || !ctx.session.user.adminActivated) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({
@@ -135,7 +135,11 @@ export const protectedProcedure = t.procedure
 export const adminProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.user || ctx.session.user.role !== "ADMIN") {
+    if (
+      !ctx.session?.user ||
+      ctx.session.user.role !== "ADMIN" ||
+      !ctx.session.user.adminActivated
+    ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
