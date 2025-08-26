@@ -12,16 +12,11 @@ import { Heart } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default async function SignIn({
-  searchParams,
-}: {
-  searchParams: Promise<{ adminActivated: string }>;
-}) {
+export default async function SignIn() {
   const session = await auth();
   if (session?.user && session.user.adminActivated) {
     redirect("/client");
   }
-  const { adminActivated } = await searchParams;
   const year = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
@@ -47,7 +42,7 @@ export default async function SignIn({
           </div>
         </div>
         <div>
-          {adminActivated && adminActivated === "false" && (
+          {!session?.user.adminActivated && (
             <ShowToast message={"Please ask for admin activation."} />
           )}
         </div>
