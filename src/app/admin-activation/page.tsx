@@ -53,8 +53,7 @@ export default async function AdminActivationPage() {
                   </p>
                   <p className="text-xs text-amber-700">
                     Our admin team will review your account and activate it
-                    within 24-48 hours. You&apos;ll receive an email
-                    notification once your account is active.
+                    within 24-48 hours.
                   </p>
                 </div>
               </div>
