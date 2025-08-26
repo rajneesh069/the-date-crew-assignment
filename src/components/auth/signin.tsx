@@ -47,6 +47,7 @@ export function EmailSignIn() {
     try {
       await signIn("nodemailer", {
         email: data.email,
+        redirectTo: "/",
       });
 
       toast("Magic Link sent to email!");
