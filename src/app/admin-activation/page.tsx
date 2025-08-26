@@ -68,7 +68,7 @@ export default async function AdminActivationPage() {
               asChild
               className="w-full bg-amber-600 text-white hover:bg-amber-700"
             >
-              <Link href="/">Return to Home</Link>
+              <Link href="/api/auth/signout">Return to Home</Link>
             </Button>
           </div>
 
