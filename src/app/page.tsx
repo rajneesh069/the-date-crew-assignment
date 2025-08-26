@@ -1,5 +1,4 @@
 import { SignInButton } from "@/components/auth/signin-button";
-import { ShowToast } from "@/components/toast";
 import {
   Card,
   CardContent,
@@ -16,6 +15,10 @@ export default async function SignIn() {
   const session = await auth();
   if (session?.user && session.user.adminActivated) {
     redirect("/client");
+  }
+
+  if (!session?.user.adminActivated) {
+    redirect("/admin-activation");
   }
   const year = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -41,11 +44,7 @@ export default async function SignIn() {
             </p>
           </div>
         </div>
-        <div>
-          {!session?.user.adminActivated && (
-            <ShowToast message={"Please ask for admin activation."} />
-          )}
-        </div>
+        <div></div>
         {/* Sign In Card */}
         <Card className="border-amber-200 bg-white/80 shadow-xl backdrop-blur-sm">
           <CardHeader className="space-y-1 text-center">
