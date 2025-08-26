@@ -13,6 +13,9 @@ import { redirect } from "next/navigation";
 
 export default async function AdminActivationPage() {
   const session = await auth();
+  if (!session?.user) {
+    redirect("/");
+  }
   if (session?.user && session?.user.adminActivated) {
     redirect("/client");
   }

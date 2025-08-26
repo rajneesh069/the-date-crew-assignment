@@ -17,7 +17,7 @@ export default async function SignIn() {
     redirect("/client");
   }
 
-  if (!session?.user.adminActivated) {
+  if (session?.user && !session?.user.adminActivated) {
     redirect("/admin-activation");
   }
   const year = new Intl.DateTimeFormat("en-IN", {
