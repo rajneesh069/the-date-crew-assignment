@@ -53,7 +53,7 @@ export default function EmailSignUp() {
       await signUpMutation.mutateAsync(data);
       await signIn("nodemailer", {
         email: data.email,
-        redirectTo: "/client",
+        redirectTo: "/?adminActivated=false",
       });
       toast("Magic Link sent to email!");
     } catch (error) {

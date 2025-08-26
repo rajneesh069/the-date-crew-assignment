@@ -46,7 +46,7 @@ export function EmailSignIn() {
     setIsLoading(true);
     try {
       await signIn("nodemailer", {
-        redirectTo: "/client",
+        redirectTo: "/?adminActivated=false",
         email: data.email,
       });
 

@@ -18,7 +18,7 @@ export default async function SignIn({
   searchParams: Promise<{ adminActivated: string }>;
 }) {
   const session = await auth();
-  if (session?.user) {
+  if (session?.user && session.user.adminActivated) {
     redirect("/client");
   }
   const { adminActivated } = await searchParams;
