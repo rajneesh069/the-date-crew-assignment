@@ -373,7 +373,7 @@ export const getSignupEmailTemplate = (signUpLink: string) =>
                 <p>This invitation was sent to you because someone tried to access our platform with your email address.
                 </p>
                 <p>If you didn't request this, you can safely ignore this email.</p>
-                <p>&copy; 2024 Your Company Name. All rights reserved.</p>
+                <p>&copy; 2025 The Date Crew. All rights reserved.</p>
             </div>
         </div>
     </div>
