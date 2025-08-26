@@ -8,6 +8,6 @@ export default async function ProtectedClientLayout({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/");
-  if (!session.user.adminActivated) redirect("/?adminActivated=false");
+  if (!session.user.adminActivated) redirect("/");
   return <div>{children}</div>;
 }
