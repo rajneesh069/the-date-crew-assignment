@@ -15,11 +15,13 @@ import {
   Globe,
   Baby,
   PawPrint,
+  ArrowLeft,
 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { LoaderOverlay } from "./ui/loader";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const preferenceColors = {
   Yes: "bg-green-100 text-green-800 border-green-200",
@@ -37,12 +39,21 @@ export function CustomerPublicProfile() {
     new Date().getFullYear() -
     new Date(customer?.dateOfBirth ?? "").getFullYear();
 
+  const router = useRouter();
+
   return (
     <LoaderOverlay isLoading={isLoading}>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
         <header className="border-b border-amber-200 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button
+                className="hidden md:block"
+                onClick={() => router.back()}
+                variant={"outline"}
+              >
+                <ArrowLeft />
+              </Button>
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <Heart className="h-5 w-5 text-amber-600 sm:h-6 sm:w-6" />
                 <Users className="h-5 w-5 text-amber-500 sm:h-6 sm:w-6" />
