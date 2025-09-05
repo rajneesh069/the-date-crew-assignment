@@ -303,7 +303,6 @@ Provide a balanced analysis covering compatibility strengths and potential areas
 - Mention key compatibility points
 - Include a call-to-action to view the profile
 - Be around 150-200 words
-- Include the profile link: ${env.APP_URL}/profile/${partner.id}
 
 Customer: ${customer.firstName} ${customer.lastName}, ${customer.designation} at ${customer.company}
 Match: ${partner.firstName} ${partner.lastName}, ${partner.designation} at ${partner.company}
@@ -323,7 +322,6 @@ Key compatibility points:
 - Mention key compatibility points
 - Include a call-to-action to view the profile
 - Be around 150-200 words
-- Include the profile link: ${env.APP_URL}/profile/${customer.id}
 
 Customer: ${partner.firstName} ${partner.lastName}, ${partner.designation} at ${partner.company}
 Match: ${customer.firstName} ${customer.lastName}, ${customer.designation} at ${customer.company}
