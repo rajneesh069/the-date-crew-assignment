@@ -85,7 +85,7 @@ export const authConfig = {
           ...session.user,
           id: user.id,
           role: (user as PrismaUser).role,
-          emailVerified: (user as PrismaUser).adminActivated,
+          adminActivated: (user as PrismaUser).adminActivated,
         },
       };
     },

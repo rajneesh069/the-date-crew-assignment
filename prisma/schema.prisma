@@ -2,139 +2,139 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? // @db.Text
+  access_token             String? // @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? // @db.Text
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
-    ADMIN
-    MATCHMAKER
+  ADMIN
+  MATCHMAKER
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String
-    email         String    @unique
-    emailVerified DateTime?
-    image         String?
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
 
-    adminActivated Boolean @default(false)
-    role           Role    @default(MATCHMAKER)
+  adminActivated Boolean @default(false)
+  role           Role    @default(MATCHMAKER)
 
-    accounts  Account[]
-    sessions  Session[]
-    customers Customer[]
+  accounts  Account[]
+  sessions  Session[]
+  customers Customer[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt()
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt()
 }
 
 enum Gender {
-    Male
-    Female
+  Male
+  Female
 }
 
 enum EmploymentType {
-    Government
-    Private
+  Government
+  Private
 }
 
 enum MaritalStatus {
-    NeverMarried
-    Divorced
+  NeverMarried
+  Divorced
 }
 
 enum PreferenceAnswer {
-    Yes
-    No
-    Maybe
+  Yes
+  No
+  Maybe
 }
 
 enum AccountStatus {
-    matched
-    unmatched
-    paused
+  matched
+  unmatched
+  paused
 }
 
 enum Importance {
-    HIGH
-    MEDIUM
-    LOW
+  HIGH
+  MEDIUM
+  LOW
 }
 
 model Customer {
-    id                               String           @id @default(cuid())
-    userId                           String?
-    firstName                        String
-    lastName                         String
-    gender                           Gender
-    dateOfBirth                      DateTime
-    country                          String
-    city                             String
-    height                           Int
-    email                            String           @unique
-    phone                            String           @unique
-    college                          String
-    degree                           String
-    income                           Int
-    employmentType                   EmploymentType
-    company                          String?
-    designation                      String
-    maritalStatus                    MaritalStatus
-    languages                        String[]
-    hobbies                          String[]
-    siblings                         Int
-    caste                            String
-    religion                         String
-    wantKids                         PreferenceAnswer
-    openToRelocate                   PreferenceAnswer
-    openToPets                       PreferenceAnswer
-    accountStatus                    AccountStatus    @default(unmatched)
-    avatar                           String?
-    joinDate                         DateTime         @default(now())
-    bio                              String
-    familySize                       Int
-    importanceOfCasteOfThePartner    Importance
-    importanceOfReligionOfThePartner Importance
-    user                             User?            @relation(fields: [userId], references: [id])
+  id                               String           @id @default(cuid())
+  userId                           String?
+  firstName                        String
+  lastName                         String
+  gender                           Gender
+  dateOfBirth                      DateTime
+  country                          String
+  city                             String
+  height                           Int
+  email                            String           @unique
+  phone                            String           @unique
+  college                          String
+  degree                           String
+  income                           Int
+  employmentType                   EmploymentType
+  company                          String?
+  designation                      String
+  maritalStatus                    MaritalStatus
+  languages                        String[]
+  hobbies                          String[]
+  siblings                         Int
+  caste                            String
+  religion                         String
+  wantKids                         PreferenceAnswer
+  openToRelocate                   PreferenceAnswer
+  openToPets                       PreferenceAnswer
+  accountStatus                    AccountStatus    @default(unmatched)
+  avatar                           String?
+  joinDate                         DateTime         @default(now())
+  bio                              String
+  familySize                       Int
+  importanceOfCasteOfThePartner    Importance
+  importanceOfReligionOfThePartner Importance
+  user                             User?            @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
